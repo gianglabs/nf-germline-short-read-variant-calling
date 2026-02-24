@@ -102,31 +102,34 @@ variant-calling-gatk-pipeline-best-practice-from-scratch/
 │   │   └── download_data.sh        # Data download helper
 │   │
 │   └── nextflow/                    # Nextflow implementation (Part 2)
-│       ├── README.md                # Nextflow-specific instructions
-│       ├── main.nf                  # Main workflow (16 steps)
+│       ├── Readme.md                # Nextflow-specific instructions (comprehensive)
+│       ├── Readme.developer.md      # Developer notes
+│       ├── main.nf                  # Main workflow (16 steps, 20 processes)
 │       ├── nextflow.config          # Profiles (test/full/slurm)
-│       ├── samplesheet.csv          # Multi-sample input example
-│       ├── modules/                 # 18 DSL2 process modules
-│       │   ├── fastqc.nf           # Step 1: Quality control
-│       │   ├── trim_galore.nf      # Step 2: Adapter trimming
-│       │   ├── bwa_mem.nf          # Step 3: Read alignment
-│       │   ├── samtools_sort.nf    # Step 4: BAM sorting
-│       │   ├── gatk_markduplicates.nf  # Step 5: PCR duplicates
-│       │   ├── gatk_baserecalibrator.nf  # Step 6: BQSR table
-│       │   ├── gatk_applybqsr.nf   # Step 7: Apply BQSR
-│       │   ├── gatk_collectmetrics.nf  # Step 8: Alignment QC (R-enabled)
-│       │   ├── gatk_haplotypecaller.nf  # Step 9: Variant calling
-│       │   ├── gatk_genotypegvcfs.nf  # Step 10: Joint genotyping
-│       │   ├── gatk_selectvariants_snp.nf  # Step 11a: SNPs
-│       │   ├── gatk_variantfiltration_snp.nf  # Step 11b: Filter SNPs
-│       │   ├── gatk_selectvariants_indel.nf  # Step 12a: Indels
-│       │   ├── gatk_variantfiltration_indel.nf  # Step 12b: Filter indels
-│       │   ├── gatk_mergevcfs.nf   # Step 13: Merge filtered VCFs
-│       │   ├── snpeff.nf           # Step 14: Functional annotation
-│       │   ├── bcftools_stats.nf   # Step 15: Variant statistics
-│       │   ├── bcftools_query.nf   # Step 16a: VCF to BED
-│       │   └── bedtools_genomecov.nf  # Step 16b: Coverage track
-│       └── WORK_DIRECTORY_EXPLAINED.md  # Nextflow internals guide
+│       ├── assets/
+│       │   ├── samplesheet.csv      # Multi-sample input example
+│       │   └── samplesheet_local.csv  # Local paths example
+│       └── modules/                 # 20 DSL2 process modules
+│           ├── fastp.nf             # Step 1: QC, trimming, filtering (replaces FastQC + Trim Galore)
+│           ├── bwa_mem2.nf          # Step 2: Read alignment (AVX2 optimized)
+│           ├── samtools_sort.nf     # Step 3: BAM sorting (per-lane)
+│           ├── samtools_merge.nf    # Step 4: Merge multi-lane BAMs
+│           ├── gatkspark_markduplicates.nf   # Step 5: PCR duplicates (Spark)
+│           ├── gatkspark_baserecalibrator.nf # Step 6: BQSR table (Spark)
+│           ├── gatkspark_applybqsr.nf        # Step 7: Apply BQSR (Spark)
+│           ├── gatk_collectmetrics.nf        # Step 8: Alignment QC
+│           ├── gatk_haplotypecaller.nf       # Step 9: Variant calling
+│           ├── gatk_genotypegvcfs.nf         # Step 10: Joint genotyping
+│           ├── gatk_selectvariants_snp.nf    # Step 11a: Extract SNPs
+│           ├── gatk_variantfiltration_snp.nf # Step 11b: Filter SNPs
+│           ├── gatk_selectvariants_indel.nf  # Step 12a: Extract indels
+│           ├── gatk_variantfiltration_indel.nf # Step 12b: Filter indels
+│           ├── gatk_mergevcfs.nf    # Step 13: Merge filtered VCFs
+│           ├── snpeff.nf            # Step 14: Functional annotation
+│           ├── bcftools_stats.nf    # Step 15: Variant statistics
+│           ├── bcftools_query.nf    # Step 16a: VCF to BED
+│           ├── bedtools_genomecov.nf  # Step 16b: Coverage bedGraph
+│           └── save_reference.nf    # Utility: Reference file management
 │
 ├── data/                            # Test FASTQ files (not tracked)
 │   ├── sample1_R1.fastq.gz         # Sample 1 forward reads
@@ -136,7 +139,7 @@ variant-calling-gatk-pipeline-best-practice-from-scratch/
 │
 ├── reference/                       # Reference genome files (not tracked)
 │   ├── genome.fasta                 # hg38 chr22 subset (40kb)
-│   ├── genome.fasta.{amb,ann,bwt,pac,sa}  # BWA indices
+│   ├── genome.fasta.{0123,amb,ann,bwt.2bit.64,pac,alt}  # BWA-MEM2 indices
 │   ├── genome.fasta.fai             # SAMtools index
 │   ├── genome.dict                  # GATK sequence dictionary
 │   ├── dbsnp_146.hg38.vcf.gz + .tbi  # Known SNP sites (BQSR)
@@ -145,9 +148,6 @@ variant-calling-gatk-pipeline-best-practice-from-scratch/
 ├── scripts/                         # Utility scripts
 │   ├── download_data.sh            # Download test data and reference
 │   └── validate_migration.sh       # MD5 validation (bash vs nextflow)
-│
-└── docs/                           # Additional documentation
-    └── TROUBLESHOOTING.md          # Common issues and solutions
 ```
 
 ## 🧬 Pipeline Overview
@@ -224,7 +224,6 @@ All tools are installed via Pixi (locked in `pixi.lock`). For complete tool vers
 
 For detailed troubleshooting guides, see:
 - 📖 [Nextflow Troubleshooting Section](workflows/nextflow/Readme.md#troubleshooting) - Container issues, memory errors, validation
-- 📖 [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) - Common issues and solutions
 
 **Quick Tips:**
 - Use `-resume` flag to restart from failures without rerunning completed steps
