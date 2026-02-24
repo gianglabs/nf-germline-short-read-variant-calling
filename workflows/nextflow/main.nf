@@ -11,26 +11,11 @@ nextflow.enable.dsl=2
 
 // Include modules
 include { SAVE_REFERENCE } from './modules/save/reference/main'
-include { FASTP } from './modules/fastp/trim/main'
-include { BWAMEM2_INDEX } from './modules/bwa/index/main'
-include { BWA_MEM2 } from './modules/bwa/mem2/main'
-include { SAMTOOLS_SORT } from './modules/samtools/sort/main'
-include { SAMTOOLS_MERGE } from './modules/samtools/merge/main'
-include { GATKSPARK_MARKDUPLICATES } from './modules/gatkspark/markduplicates/main'
-include { GATKSPARK_BASERECALIBRATOR } from './modules/gatkspark/baserecalibrator/main'
-include { GATKSPARK_APPLYBQSR } from './modules/gatkspark/applybqsr/main'
-include { GATK_COLLECTMETRICS } from './modules/gatk/collectmetrics/main'
-include { GATK_HAPLOTYPECALLER } from './modules/gatk/haplotypecaller/main'
-include { GATK_GENOTYPEGVCFS } from './modules/gatk/genotypegvcfs/main'
-include { GATK_SELECTVARIANTS_SNP } from './modules/gatk/selectvariants_snp/main'
-include { GATK_VARIANTFILTRATION_SNP } from './modules/gatk/variantfiltration_snp/main'
-include { GATK_SELECTVARIANTS_INDEL } from './modules/gatk/selectvariants_indel/main'
-include { GATK_VARIANTFILTRATION_INDEL } from './modules/gatk/variantfiltration_indel/main'
-include { GATK_MERGEVCFS } from './modules/gatk/mergevcfs/main'
-include { SNPEFF } from './modules/snpeff/annotate/main'
-include { BCFTOOLS_STATS } from './modules/bcftools/stats/main'
-include { BCFTOOLS_QUERY } from './modules/bcftools/query/main'
-include { BEDTOOLS_GENOMECOV } from './modules/bedtools/genomecov/main'
+
+// Include subworkflows
+include { PREPROCESSING } from './subworkflows/local/preprocessing/main'
+include { VARIANT_CALLING } from './subworkflows/local/variant_calling/main'
+include { ANNOTATION } from './subworkflows/local/annotation/main'
 
 /*
 ========================================================================================
@@ -61,235 +46,56 @@ workflow GATK_VARIANT_CALLING {
     known_indels_vcf = known_indels_ch.map { it[0] }.first()
     known_indels_tbi = known_indels_ch.map { it[1] }.first()
     
-    // Check if BWA index needs to be generated
-    // If bwa_index_ch is empty, generate index; otherwise use provided index
-    bwa_index_ch
-        .ifEmpty { 
-            // Index not provided, generate it
-            BWAMEM2_INDEX(ref_fasta)
-            ch_versions = ch_versions.mix(BWAMEM2_INDEX.out.versions)
-            BWAMEM2_INDEX.out.index.collect()
-        }
-        .set { ch_bwa_index }
-    
     //
-    // STEP 1: Adapter Trimming, Quality Filtering, and QC with fastp
+    // SUBWORKFLOW: PREPROCESSING (Steps 1-8)
+    // Includes: FASTP, BWA-MEM2, Sorting, Merging, MarkDuplicates, BQSR, Metrics
     //
-    FASTP (
-        reads_ch
-    )
-    ch_versions = ch_versions.mix(FASTP.out.versions)
-    
-    //
-    // STEP 2: Read Alignment with BWA-MEM2
-    //
-    BWA_MEM2 (
-        FASTP.out.reads,
+    PREPROCESSING (
+        reads_ch,
         ref_fasta,
         ref_fai,
         ref_dict,
-        ch_bwa_index
-    )
-    ch_versions = ch_versions.mix(BWA_MEM2.out.versions)
-    
-    //
-    // STEP 3: Sort BAM file
-    //
-    SAMTOOLS_SORT (
-        BWA_MEM2.out.bam
-    )
-    ch_versions = ch_versions.mix(SAMTOOLS_SORT.out.versions)
-    
-    //
-    // STEP 4: Merge lanes per sample (if multiple lanes exist)
-    // Group by sample ID and collect all BAMs for each sample
-    //
-    SAMTOOLS_SORT.out.bam
-        .map { meta, bam ->
-            // Create new meta with only sample ID for merging
-            def new_meta = [:]
-            new_meta.id = meta.sample
-            new_meta.sample = meta.sample
-            return [ new_meta.id, new_meta, bam ]
-        }
-        .groupTuple()
-        .map { sample_id, metas, bams ->
-            // Take the first meta (they should all have same sample info)
-            return [ metas[0], bams ]
-        }
-        .set { ch_bams_to_merge }
-    
-    SAMTOOLS_MERGE (
-        ch_bams_to_merge
-    )
-    ch_versions = ch_versions.mix(SAMTOOLS_MERGE.out.versions)
-    
-    //
-    // STEP 5: Mark Duplicates
-    //
-    GATKSPARK_MARKDUPLICATES (
-        SAMTOOLS_MERGE.out.bam
-    )
-    ch_versions = ch_versions.mix(GATKSPARK_MARKDUPLICATES.out.versions)
-    
-    //
-    // STEP 6: Base Quality Score Recalibration - Generate table
-    //
-    GATKSPARK_BASERECALIBRATOR (
-        GATKSPARK_MARKDUPLICATES.out.bam.join(GATKSPARK_MARKDUPLICATES.out.bai),
-        ref_fasta,
-        ref_fai,
-        ref_dict,
+        bwa_index_ch,
         dbsnp_vcf,
         dbsnp_tbi,
         known_indels_vcf,
         known_indels_tbi
     )
-    ch_versions = ch_versions.mix(GATKSPARK_BASERECALIBRATOR.out.versions)
+    ch_versions = ch_versions.mix(PREPROCESSING.out.versions)
     
     //
-    // STEP 7: Apply BQSR
+    // SUBWORKFLOW: VARIANT_CALLING (Steps 9-13)
+    // Includes: HaplotypeCaller, GenotypeGVCFs, Variant Filtering, Merging
     //
-    GATKSPARK_APPLYBQSR (
-        GATKSPARK_MARKDUPLICATES.out.bam
-            .join(GATKSPARK_MARKDUPLICATES.out.bai)
-            .join(GATKSPARK_BASERECALIBRATOR.out.table),
-        ref_fasta,
-        ref_fai,
-        ref_dict
-    )
-    ch_versions = ch_versions.mix(GATKSPARK_APPLYBQSR.out.versions)
-    
-    //
-    // STEP 8: Alignment Quality Assessment
-    //
-    GATK_COLLECTMETRICS (
-        GATKSPARK_APPLYBQSR.out.bam.join(GATKSPARK_APPLYBQSR.out.bai),
-        ref_fasta,
-        ref_fai,
-        ref_dict
-    )
-    ch_versions = ch_versions.mix(GATK_COLLECTMETRICS.out.versions)
-    
-    //
-    // STEP 9: Variant Calling with HaplotypeCaller (GVCF mode) or FreeBayes
-    //
-    GATK_HAPLOTYPECALLER (
-        GATKSPARK_APPLYBQSR.out.bam.join(GATKSPARK_APPLYBQSR.out.bai),
+    VARIANT_CALLING (
+        PREPROCESSING.out.bam,
+        PREPROCESSING.out.bai,
         ref_fasta,
         ref_fai,
         ref_dict,
         dbsnp_vcf,
         dbsnp_tbi
     )
-    ch_versions = ch_versions.mix(GATK_HAPLOTYPECALLER.out.versions)
+    ch_versions = ch_versions.mix(VARIANT_CALLING.out.versions)
     
     //
-    // STEP 10: Genotype GVCFs
+    // SUBWORKFLOW: ANNOTATION (Steps 14-16)
+    // Includes: SnpEff, bcftools stats, Visualization
     //
-    GATK_GENOTYPEGVCFS (
-        GATK_HAPLOTYPECALLER.out.gvcf.join(GATK_HAPLOTYPECALLER.out.tbi),
-        ref_fasta,
-        ref_fai,
-        ref_dict
-    )
-    ch_versions = ch_versions.mix(GATK_GENOTYPEGVCFS.out.versions)
-    
-    //
-    // STEP 11: Select and Filter SNPs
-    //
-    GATK_SELECTVARIANTS_SNP (
-        GATK_GENOTYPEGVCFS.out.vcf.join(GATK_GENOTYPEGVCFS.out.tbi),
-        ref_fasta,
-        ref_fai,
-        ref_dict
-    )
-    ch_versions = ch_versions.mix(GATK_SELECTVARIANTS_SNP.out.versions)
-    
-    GATK_VARIANTFILTRATION_SNP (
-        GATK_SELECTVARIANTS_SNP.out.vcf.join(GATK_SELECTVARIANTS_SNP.out.tbi),
-        ref_fasta,
-        ref_fai,
-        ref_dict
-    )
-    ch_versions = ch_versions.mix(GATK_VARIANTFILTRATION_SNP.out.versions)
-    
-    //
-    // STEP 12: Select and Filter Indels
-    //
-    GATK_SELECTVARIANTS_INDEL (
-        GATK_GENOTYPEGVCFS.out.vcf.join(GATK_GENOTYPEGVCFS.out.tbi),
-        ref_fasta,
-        ref_fai,
-        ref_dict
-    )
-    ch_versions = ch_versions.mix(GATK_SELECTVARIANTS_INDEL.out.versions)
-    
-    GATK_VARIANTFILTRATION_INDEL (
-        GATK_SELECTVARIANTS_INDEL.out.vcf.join(GATK_SELECTVARIANTS_INDEL.out.tbi),
-        ref_fasta,
-        ref_fai,
-        ref_dict
-    )
-    ch_versions = ch_versions.mix(GATK_VARIANTFILTRATION_INDEL.out.versions)
-    
-    //
-    // STEP 13: Merge filtered SNPs and Indels
-    //
-    GATK_MERGEVCFS (
-        GATK_VARIANTFILTRATION_SNP.out.vcf
-            .join(GATK_VARIANTFILTRATION_SNP.out.tbi)
-            .join(GATK_VARIANTFILTRATION_INDEL.out.vcf)
-            .join(GATK_VARIANTFILTRATION_INDEL.out.tbi),
-        ref_fasta,
-        ref_fai,
-        ref_dict
-    )
-    ch_versions = ch_versions.mix(GATK_MERGEVCFS.out.versions)
-    
-    // Set final VCF channel for downstream processes
-    ch_final_vcf = GATK_MERGEVCFS.out.vcf
-    ch_final_tbi = GATK_MERGEVCFS.out.tbi
-    
-    //
-    // STEP 14: Functional Annotation with SnpEff
-    //
-    SNPEFF (
-        ch_final_vcf.join(ch_final_tbi),
+    ANNOTATION (
+        VARIANT_CALLING.out.vcf,
+        VARIANT_CALLING.out.tbi,
+        PREPROCESSING.out.bam,
+        PREPROCESSING.out.bai,
         params.snpeff_genome ?: 'GRCh38.mane.1.0.refseq'
     )
-    ch_versions = ch_versions.mix(SNPEFF.out.versions)
-    
-    //
-    // STEP 15: Variant Statistics with bcftools
-    //
-    BCFTOOLS_STATS (
-        ch_final_vcf.join(ch_final_tbi)
-    )
-    ch_versions = ch_versions.mix(BCFTOOLS_STATS.out.versions)
-    
-    //
-    // STEP 16: Create Visualization Files
-    //
-    // 16a: Create BED file from VCF with bcftools
-    BCFTOOLS_QUERY (
-        ch_final_vcf.join(ch_final_tbi)
-    )
-    ch_versions = ch_versions.mix(BCFTOOLS_QUERY.out.versions)
-    
-    // 16b: Generate coverage track with bedtools
-    BEDTOOLS_GENOMECOV (
-        GATKSPARK_APPLYBQSR.out.bam.join(GATKSPARK_APPLYBQSR.out.bai)
-    )
-    ch_versions = ch_versions.mix(BEDTOOLS_GENOMECOV.out.versions)
+    ch_versions = ch_versions.mix(ANNOTATION.out.versions)
     
     emit:
-    fastp_html = FASTP.out.html
-    fastp_json = FASTP.out.json
-    trimmed_reads = FASTP.out.reads
-    final_bam = GATKSPARK_APPLYBQSR.out.bam
-    final_vcf = ch_final_vcf
-    annotated_vcf = SNPEFF.out.vcf
+    preprocessing_metrics = PREPROCESSING.out.metrics
+    final_bam = PREPROCESSING.out.bam
+    final_vcf = VARIANT_CALLING.out.vcf
+    annotated_vcf = ANNOTATION.out.annotated_vcf
     versions = ch_versions
 }
 
