@@ -25,7 +25,8 @@ workflow PREPROCESSING {
     ref_fasta       // path: reference FASTA
     ref_fai         // path: reference FAI
     ref_dict        // path: reference dict
-    bwa_index_ch    // channel: Optional BWA index files
+    bwa2_index   // channel: Optional BWA index files
+    index_bwa2_reference // channel: Optional BWA index files
     dbsnp_vcf       // path: dbSNP VCF
     dbsnp_tbi       // path: dbSNP TBI
     known_indels_vcf // path: known indels VCF
@@ -36,12 +37,14 @@ workflow PREPROCESSING {
     
     // Check if BWA index needs to be generated
     // If empty, generate it; otherwise use provided index
-    ch_bwa_index = bwa_index_ch.ifEmpty {
+    if (index_bwa2_reference){
         BWAMEM2_INDEX(ref_fasta)
         ch_versions = ch_versions.mix(BWAMEM2_INDEX.out.versions)
-        BWAMEM2_INDEX.out.index
+        bwa2_index_ch = BWAMEM2_INDEX.out.index
     }
-    
+    else{
+        bwa2_index_ch = Channel.fromPath(bwa2_index)
+    }
     //
     // STEP 1: Adapter Trimming, Quality Filtering, and QC with fastp
     //
@@ -58,7 +61,7 @@ workflow PREPROCESSING {
         ref_fasta,
         ref_fai,
         ref_dict,
-        ch_bwa_index
+        bwa2_index_ch
     )
     ch_versions = ch_versions.mix(BWA_MEM2.out.versions)
     

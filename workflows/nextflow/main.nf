@@ -9,9 +9,6 @@ nextflow.enable.dsl=2
 ========================================================================================
 */
 
-// Include modules
-include { SAVE_REFERENCE } from './modules/save/reference/main'
-
 // Include subworkflows
 include { PREPROCESSING } from './subworkflows/local/preprocessing/main'
 include { VARIANT_CALLING } from './subworkflows/local/variant_calling/main'
@@ -27,25 +24,18 @@ workflow GATK_VARIANT_CALLING {
     
     take:
     reads_ch        // channel: [ val(meta), [ path(read1), path(read2) ] ]
-    reference_ch    // channel: [ path(fasta), path(fai), path(dict) ]
-    bwa_index_ch    // channel: Optional [ path(amb), path(ann), ...) ] - if empty, will be generated
-    dbsnp_ch        // channel: [ path(vcf), path(tbi) ]
-    known_indels_ch // channel: [ path(vcf), path(tbi) ]
+    ref_fasta       // channel: path(fasta)
+    ref_fai         // channel: path(fai)
+    ref_dict        // channel: path(dict)
+    bwa2_index_ch 
+    index_bwa2_reference // channel: Optional [ path(amb), path(ann), ...) ] - if empty, will be generated
+    dbsnp_vcf      // channel: path(dbsnp vcf)
+    dbsnp_tbi      // channel: path(dbsnp tbi)
+    known_indels_vcf // channel: path(known indel vcf)
+    known_indels_tbi // channel: path(known indel tbi)
     
     main:
     ch_versions = Channel.empty()
-    
-    // Convert input channels to value channels (collect once, reuse everywhere)
-    ref_fasta = reference_ch.map { it[0] }.first()
-    ref_fai   = reference_ch.map { it[1] }.first()
-    ref_dict  = reference_ch.map { it[2] }.first()
-    
-    dbsnp_vcf = dbsnp_ch.map { it[0] }.first()
-    dbsnp_tbi = dbsnp_ch.map { it[1] }.first()
-    
-    known_indels_vcf = known_indels_ch.map { it[0] }.first()
-    known_indels_tbi = known_indels_ch.map { it[1] }.first()
-    
     //
     // SUBWORKFLOW: PREPROCESSING (Steps 1-8)
     // Includes: FASTP, BWA-MEM2, Sorting, Merging, MarkDuplicates, BQSR, Metrics
@@ -55,7 +45,8 @@ workflow GATK_VARIANT_CALLING {
         ref_fasta,
         ref_fai,
         ref_dict,
-        bwa_index_ch,
+        bwa2_index_ch,
+        index_bwa2_reference,
         dbsnp_vcf,
         dbsnp_tbi,
         known_indels_vcf,
@@ -87,7 +78,7 @@ workflow GATK_VARIANT_CALLING {
         VARIANT_CALLING.out.tbi,
         PREPROCESSING.out.bam,
         PREPROCESSING.out.bai,
-        params.snpeff_genome ?: 'GRCh38.mane.1.0.refseq'
+        params.snpeff_genome
     )
     ch_versions = ch_versions.mix(ANNOTATION.out.versions)
     
@@ -111,159 +102,72 @@ workflow {
     //
     // Create input channel from samplesheet or input parameters
     //
-    if (params.input) {
-        // Read from samplesheet CSV
-        Channel
-            .fromPath(params.input)
-            .splitCsv(header: true)
-            .map { row ->
-                def meta = [:]
-                meta.id = row.sample
-                meta.sample = row.sample
-                // Support both new format (with lane) and old format (without lane)
-                meta.lane = row.lane ?: "L001"
-                meta.read_group = "${row.sample}_${meta.lane}"
-                def reads = []
-                reads.add(file(row.fastq_1))
-                if (row.fastq_2) {
-                    reads.add(file(row.fastq_2))
-                }
-                return [ meta, reads ]
+    // Read from samplesheet CSV
+    Channel
+        .fromPath(params.input)
+        .splitCsv(header: true)
+        .map { row ->
+            def meta = [:]
+            meta.id = row.sample
+            meta.sample = row.sample
+            // Support both new format (with lane) and old format (without lane)
+            meta.lane = row.lane ?: "L001"
+            meta.read_group = "${row.sample}_${meta.lane}"
+            def reads = []
+            reads.add(file(row.fastq_1))
+            if (row.fastq_2) {
+                reads.add(file(row.fastq_2))
             }
-            .set { ch_input }
-    } else {
-        // Direct parameters
-        def meta = [:]
-        meta.id = params.sample ?: 'sample1'
-        
-        def reads = []
-        reads.add(file(params.fastq_r1))
-        if (params.fastq_r2) {
-            reads.add(file(params.fastq_r2))
+            return [ meta, reads ]
         }
-        
-        ch_input = Channel.of([ meta, reads ])
-    }
+        .set { ch_input }
+    
+    log.info """
+    ==============================================================================================================================
+    nf-germline-short-read-variant-calling:
+     - Nextflow Version
+     - Workflow: GATK_VARIANT_CALLING
+     - Subworkflows: PREPROCESSING, VARIANT_CALLING, ANNOTATION
+     - Reference Genome: ${params.reference}
+     - dbSNP VCF: ${params.dbsnp}
+     - Known Indels VCF: ${params.known_indels}
+     - Input Samplesheet: ${params.input}
+     - Output Directory: ${params.outdir}
+    ==============================================================================================================================
+    """.stripIndent()
     
     //
-    // Prepare reference files - either use iGenomes S3 paths or local files
-    // Nextflow automatically handles S3 file fetching
+    // Prepare reference genome channels
+    // Values from nextflow.config params block, override via CLI as needed
+    ref_fasta_ch = Channel.fromPath(params.reference, checkIfExists: true).collect()
+    ref_fai_ch   = Channel.fromPath(params.reference_index, checkIfExists: true).collect()
+    ref_dict_ch  = Channel.fromPath(params.reference_dict, checkIfExists: true).collect()
+
+    // Prepare known sites channels
+    // Values from nextflow.config params block, override via CLI as needed
+    dbsnp_vcf_ch       = Channel.fromPath(params.dbsnp, checkIfExists: true).collect()
+    dbsnp_tbi_ch       = Channel.fromPath(params.dbsnp_tbi, checkIfExists: true).collect()
+    known_indels_vcf_ch = Channel.fromPath(params.known_indels, checkIfExists: true).collect()
+    known_indels_tbi_ch = Channel.fromPath(params.known_indels_tbi, checkIfExists: true).collect()
+
+    // Prepare BWA-MEM2 index files channel
+    // Try to find existing index files, if not found, channel will be empty and index will be generated
     //
-    if (params.use_igenomes) {
-        // Get genome-specific paths from config
-        def genome_config = params.genomes[params.genome]
-        
-        log.info """
-        ==========================================
-        Using iGenomes Reference Files
-        ==========================================
-        Genome        : ${params.genome}
-        iGenomes Base : ${params.igenomes_base}
-        Save Reference: ${params.save_reference}
-        Variant Caller : ${params.variant_caller}
-        ==========================================
-        FASTA         : ${genome_config.fasta}
-        BWA Index     : ${genome_config.bwa_index}
-        dbSNP         : ${genome_config.dbsnp}
-        Known Indels  : ${genome_config.known_indels}
-        ==========================================
-        """.stripIndent()
-        
-        //
-        // Prepare reference genome channel from S3
-        // Nextflow will automatically fetch these files when needed
-        //
-        reference_ch = Channel.of([
-            file(genome_config.fasta),
-            file(genome_config.fasta_fai),
-            file(genome_config.dict)
-        ])
-        
-        //
-        // Prepare BWA-MEM2 index files channel from S3
-        // BWA-MEM2 uses different index format: .0123, .bwt.2bit.64, .amb, .ann, .pac, .alt
-        // Try to find existing index files, if not found, channel will be empty and index will be generated
-        //
-        bwa_index_ch = Channel.fromPath("${genome_config.bwa_index}.{0123,amb,ann,pac,bwt.2bit.64,bwt,sa,alt}", checkIfExists: false)
-            .collect()
-            .ifEmpty { Channel.empty() }
-        
-        //
-        // Prepare known sites channels from S3
-        //
-        dbsnp_ch = Channel.of([
-            file(genome_config.dbsnp),
-            file(genome_config.dbsnp_tbi)
-        ])
-        
-        known_indels_ch = Channel.of([
-            file(genome_config.known_indels),
-            file(genome_config.known_indels_tbi)
-        ])
-        
-        //
-        // Optionally save reference files to output directory for reuse
-        //
-        if (params.save_reference) {
-            SAVE_REFERENCE(
-                reference_ch,
-                bwa_index_ch,
-                dbsnp_ch,
-                known_indels_ch
-            )
-        }
-        
-    } else {
-        log.info """
-        ==========================================
-        Using Local Reference Files
-        ==========================================
-        Reference     : ${params.reference}
-        dbSNP         : ${params.dbsnp}
-        Known Indels  : ${params.known_indels}
-        ==========================================
-        """.stripIndent()
-        
-        //
-        // Prepare reference genome channel
-        //
-        reference_ch = Channel.of([
-            file(params.reference),
-            file("${params.reference}.fai"),
-            file(params.reference.toString().replace('.fasta', '.dict').replace('.fa', '.dict'))
-        ])
-        
-        //
-        // Prepare BWA-MEM2 index files channel
-        // Try to find existing index files, if not found, channel will be empty and index will be generated
-        //
-        bwa_index_ch = Channel.fromPath("${params.reference}.{0123,amb,ann,pac,bwt.2bit.64,bwt,sa,alt}", checkIfExists: false)
-            .collect()
-            .ifEmpty { Channel.empty() }
-        
-        //
-        // Prepare known sites channels
-        //
-        dbsnp_ch = Channel.of([
-            file(params.dbsnp),
-            file("${params.dbsnp}.tbi")
-        ])
-        
-        known_indels_ch = Channel.of([
-            file(params.known_indels),
-            file("${params.known_indels}.tbi")
-        ])
-    }
-    
+
     //
     // RUN WORKFLOW
     //
     GATK_VARIANT_CALLING (
         ch_input,
-        reference_ch,
-        bwa_index_ch,
-        dbsnp_ch,
-        known_indels_ch
+        ref_fasta_ch,
+        ref_fai_ch,
+        ref_dict_ch,
+        params.bwa2_index,
+        params.index_bwa2_reference,
+        dbsnp_vcf_ch,
+        dbsnp_tbi_ch,
+        known_indels_vcf_ch,
+        known_indels_tbi_ch
     )
 }
 
