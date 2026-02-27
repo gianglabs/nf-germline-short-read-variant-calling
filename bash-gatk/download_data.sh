@@ -67,11 +67,11 @@ echo ""
 echo "Downloading test FASTQ files..."
 cd data
 
-curl -L -o test_1.fastq.gz \
+curl -L -o sample1_R1.fastq.gz \
   https://raw.githubusercontent.com/nf-core/test-datasets/modules/data/genomics/homo_sapiens/illumina/fastq/test_1.fastq.gz
 echo "✓ test_1.fastq.gz downloaded"
 
-curl -L -o test_2.fastq.gz \
+curl -L -o sample1_R2.fastq.gz \
   https://raw.githubusercontent.com/nf-core/test-datasets/modules/data/genomics/homo_sapiens/illumina/fastq/test_2.fastq.gz
 echo "✓ test_2.fastq.gz downloaded"
 

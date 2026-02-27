@@ -10,6 +10,7 @@ results/
 # Logs
 *.log
 pipeline.log
+!pixi.lock
 
 # Intermediate files
 *.bam
