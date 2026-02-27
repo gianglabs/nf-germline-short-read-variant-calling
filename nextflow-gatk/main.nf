@@ -20,15 +20,6 @@ include { GATK_APPLYBQSR } from './modules/gatk_applybqsr'
 include { GATK_COLLECTMETRICS } from './modules/gatk_collectmetrics'
 include { GATK_HAPLOTYPECALLER } from './modules/gatk_haplotypecaller'
 include { GATK_GENOTYPEGVCFS } from './modules/gatk_genotypegvcfs'
-include { GATK_SELECTVARIANTS_SNP } from './modules/gatk_selectvariants_snp'
-include { GATK_VARIANTFILTRATION_SNP } from './modules/gatk_variantfiltration_snp'
-include { GATK_SELECTVARIANTS_INDEL } from './modules/gatk_selectvariants_indel'
-include { GATK_VARIANTFILTRATION_INDEL } from './modules/gatk_variantfiltration_indel'
-include { GATK_MERGEVCFS } from './modules/gatk_mergevcfs'
-include { SNPEFF } from './modules/snpeff'
-include { BCFTOOLS_STATS } from './modules/bcftools_stats'
-include { BCFTOOLS_QUERY } from './modules/bcftools_query'
-include { BEDTOOLS_GENOMECOV } from './modules/bedtools_genomecov'
 
 /*
 ========================================================================================
@@ -155,93 +146,6 @@ workflow GATK_VARIANT_CALLING {
     )
     ch_versions = ch_versions.mix(GATK_GENOTYPEGVCFS.out.versions)
     
-    //
-    // STEP 11: Select and Filter SNPs
-    //
-    GATK_SELECTVARIANTS_SNP (
-        GATK_GENOTYPEGVCFS.out.vcf.join(GATK_GENOTYPEGVCFS.out.tbi),
-        reference_ch.map { it[0] },
-        reference_ch.map { it[1] },
-        reference_ch.map { it[2] }
-    )
-    ch_versions = ch_versions.mix(GATK_SELECTVARIANTS_SNP.out.versions)
-    
-    GATK_VARIANTFILTRATION_SNP (
-        GATK_SELECTVARIANTS_SNP.out.vcf.join(GATK_SELECTVARIANTS_SNP.out.tbi),
-        reference_ch.map { it[0] },
-        reference_ch.map { it[1] },
-        reference_ch.map { it[2] }
-    )
-    ch_versions = ch_versions.mix(GATK_VARIANTFILTRATION_SNP.out.versions)
-    
-    //
-    // STEP 12: Select and Filter Indels
-    //
-    GATK_SELECTVARIANTS_INDEL (
-        GATK_GENOTYPEGVCFS.out.vcf.join(GATK_GENOTYPEGVCFS.out.tbi),
-        reference_ch.map { it[0] },
-        reference_ch.map { it[1] },
-        reference_ch.map { it[2] }
-    )
-    ch_versions = ch_versions.mix(GATK_SELECTVARIANTS_INDEL.out.versions)
-    
-    GATK_VARIANTFILTRATION_INDEL (
-        GATK_SELECTVARIANTS_INDEL.out.vcf.join(GATK_SELECTVARIANTS_INDEL.out.tbi),
-        reference_ch.map { it[0] },
-        reference_ch.map { it[1] },
-        reference_ch.map { it[2] }
-    )
-    ch_versions = ch_versions.mix(GATK_VARIANTFILTRATION_INDEL.out.versions)
-    
-    //
-    // STEP 13: Merge filtered SNPs and Indels
-    //
-    GATK_MERGEVCFS (
-        GATK_VARIANTFILTRATION_SNP.out.vcf
-            .join(GATK_VARIANTFILTRATION_SNP.out.tbi)
-            .join(GATK_VARIANTFILTRATION_INDEL.out.vcf)
-            .join(GATK_VARIANTFILTRATION_INDEL.out.tbi),
-        reference_ch.map { it[0] },
-        reference_ch.map { it[1] },
-        reference_ch.map { it[2] }
-    )
-    ch_versions = ch_versions.mix(GATK_MERGEVCFS.out.versions)
-    
-    //
-    // STEP 14: Functional Annotation with SnpEff
-    //
-    SNPEFF (
-        GATK_MERGEVCFS.out.vcf.join(GATK_MERGEVCFS.out.tbi),
-        params.snpeff_genome ?: 'GRCh38.mane.1.0.refseq'
-    )
-    ch_versions = ch_versions.mix(SNPEFF.out.versions)
-    
-    //
-    // STEP 15: Variant Statistics with bcftools
-    //
-    BCFTOOLS_STATS (
-        GATK_GENOTYPEGVCFS.out.vcf
-            .join(GATK_GENOTYPEGVCFS.out.tbi)
-            .join(GATK_MERGEVCFS.out.vcf)
-            .join(GATK_MERGEVCFS.out.tbi)
-    )
-    ch_versions = ch_versions.mix(BCFTOOLS_STATS.out.versions)
-    
-    //
-    // STEP 16: Create Visualization Files
-    //
-    // 16a: Create BED file from VCF with bcftools
-    BCFTOOLS_QUERY (
-        GATK_MERGEVCFS.out.vcf.join(GATK_MERGEVCFS.out.tbi)
-    )
-    ch_versions = ch_versions.mix(BCFTOOLS_QUERY.out.versions)
-    
-    // 16b: Generate coverage track with bedtools
-    BEDTOOLS_GENOMECOV (
-        GATK_APPLYBQSR.out.bam.join(GATK_APPLYBQSR.out.bai)
-    )
-    ch_versions = ch_versions.mix(BEDTOOLS_GENOMECOV.out.versions)
-    
     emit:
     fastqc_html = FASTQC.out.html
     fastqc_zip  = FASTQC.out.zip
@@ -249,8 +153,6 @@ workflow GATK_VARIANT_CALLING {
     final_bam = GATK_APPLYBQSR.out.bam
     gvcf = GATK_HAPLOTYPECALLER.out.gvcf
     raw_vcf = GATK_GENOTYPEGVCFS.out.vcf
-    final_vcf = GATK_MERGEVCFS.out.vcf
-    annotated_vcf = SNPEFF.out.vcf
     versions = ch_versions
 }
 
@@ -265,35 +167,18 @@ workflow {
     //
     // Create input channel from samplesheet or input parameters
     //
-    if (params.input) {
-        // Read from samplesheet CSV
-        Channel
-            .fromPath(params.input)
-            .splitCsv(header: true)
-            .map { row ->
-                def meta = [:]
-                meta.id = row.sample
-                def reads = []
-                reads.add(file(row.fastq_1))
-                if (row.fastq_2) {
-                    reads.add(file(row.fastq_2))
-                }
-                return [ meta, reads ]
-            }
-            .set { ch_input }
-    } else {
-        // Direct parameters
-        def meta = [:]
-        meta.id = params.sample ?: 'sample1'
-        
-        def reads = []
-        reads.add(file(params.fastq_r1))
-        if (params.fastq_r2) {
-            reads.add(file(params.fastq_r2))
-        }
-        
-        ch_input = Channel.of([ meta, reads ])
+    // Direct parameters
+    def meta = [:]
+    meta.id = params.sample ?: 'sample1'
+    
+    def reads = []
+    reads.add(file(params.fastq_r1))
+    if (params.fastq_r2) {
+        reads.add(file(params.fastq_r2))
     }
+    
+    ch_input = Channel.of([ meta, reads ])
+    
     
     //
     // Prepare reference genome channel
