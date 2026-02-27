@@ -52,6 +52,22 @@ FINAL_VCF="${VAR_DIR}/${SAMPLE}_filtered.vcf.gz"
 ANNOTATED_VCF="${VAR_DIR}/${SAMPLE}_annotated.vcf"
 METRICS="${ALIGNED_DIR}/${SAMPLE}_duplicate_metrics.txt"
 
+# Check tools are available
+echo "Checking required tools..."
+echo "✓ FastQC:" 
+fastqc --version
+echo "✓ Trim Galore:" 
+trim_galore --version
+echo "✓ BWA:" 
+bwa
+echo "✓ Samtools:" 
+samtools --version
+echo "✓ GATK:" 
+gatk --version
+echo "✓ R (for insert size histogram):" 
+R --version
+echo "All required tools are available."
+
 # Create output directories
 mkdir -p ${QC_DIR} ${TRIMMED_DIR} ${ALIGNED_DIR} ${VAR_DIR}
 
@@ -163,3 +179,12 @@ gatk GenotypeGVCFs \
     -O ${RAW_VCF}
 echo "[$(date)] Genotyping completed"
 echo
+
+
+bwa = "0.7.17"
+samtools = "1.16.1"
+gatk4 = "4.6.2.0"
+fastqc = "0.12.1"
+curl = "*"
+trim-galore = "0.16.11"
+r-base = ">=4.4.2,<4.5"

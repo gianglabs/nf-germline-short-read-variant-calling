@@ -6,14 +6,10 @@ channels = ["conda-forge", "bioconda"]
 platforms = ["linux-64"]
 
 [dependencies]
-bwa = "*"
-samtools = "*"
-gatk4 = "*"
-fastqc = "*"
+bwa = "==0.7.17"
+samtools = "==1.16.1"
+gatk4 = "==4.6.2.0"
+fastqc = "==0.12.1"
 curl = "*"
-trim-galore = "*"
-bcftools = "*"
-bedtools = "*"
-snpeff = "*"
-htslib = "*"
-r-base = ">=4.4.2,<4.5"
+trim-galore = "==0.6.11"
+r-base = "==4.4.0"
