@@ -1,0 +1,84 @@
+{
+    "Test workflow completion": {
+        "content": [
+            {
+                "success": true,
+                "exitStatus": 0,
+                "errorMessage": "",
+                "errorReport": "",
+                "failed": false,
+                "trace": {
+                    "tasksCount": 39,
+                    "tasksFailed": 0,
+                    "tasksSucceeded": 39
+                },
+                "stdout": [
+                    "N E X T F L O W  ~  version 25.10.4",
+                    "Launching `/scratch/data/nf-germline-short-read-variant-calling/tests/../main.nf` [evil_mirzakhani] DSL2 - revision: e1d4b06c13",
+                    "",
+                    "==============================================================================================================================",
+                    "nf-germline-short-read-variant-calling:",
+                    " - Nextflow Version",
+                    " - Workflow: GATK_VARIANT_CALLING",
+                    " - Subworkflows: PREPROCESSING, VARIANT_CALLING, ANNOTATION",
+                    " - Loaded genomes set: sarek_test",
+                    " - Reference Genome: https://raw.githubusercontent.com/nf-core/test-datasets/modules/data/genomics/homo_sapiens/genome/genome.fasta",
+                    " - dbSNP VCF: https://raw.githubusercontent.com/nf-core/test-datasets/modules/data/genomics/homo_sapiens/genome/vcf/dbsnp_146.hg38.vcf.gz",
+                    " - Known Indels VCF: https://raw.githubusercontent.com/nf-core/test-datasets/modules/data/genomics/homo_sapiens/genome/vcf/mills_and_1000G.indels.vcf.gz",
+                    " - Input Samplesheet: /scratch/data/nf-germline-short-read-variant-calling/assets/samplesheet.csv",
+                    " - Output Directory: /scratch/data/nf-germline-short-read-variant-calling/.nf-test/tests/108b2d07f265194b214e234fe2808698/output",
+                    "==============================================================================================================================",
+                    "",
+                    "[85/4fbe43] Submitted process > GERMLINE_VARIANT_CALLING:PREPROCESSING:BWAMEM2_INDEX (genome.fasta)",
+                    "[5d/5a5ee7] Submitted process > GERMLINE_VARIANT_CALLING:PREPROCESSING:FASTP (sample2)",
+                    "[ba/efe43d] Submitted process > GERMLINE_VARIANT_CALLING:PREPROCESSING:FASTP (sample1)",
+                    "[65/52efba] Submitted process > GERMLINE_VARIANT_CALLING:PREPROCESSING:BWA_MEM2 (sample2)",
+                    "[2b/d65b66] Submitted process > GERMLINE_VARIANT_CALLING:PREPROCESSING:BWA_MEM2 (sample1)",
+                    "[22/db2b54] Submitted process > GERMLINE_VARIANT_CALLING:PREPROCESSING:SAMTOOLS_SORT (sample2)",
+                    "[e3/0390f3] Submitted process > GERMLINE_VARIANT_CALLING:PREPROCESSING:SAMTOOLS_SORT (sample1)",
+                    "[46/5b16c2] Submitted process > GERMLINE_VARIANT_CALLING:PREPROCESSING:SAMTOOLS_MERGE (sample1)",
+                    "[7a/eff341] Submitted process > GERMLINE_VARIANT_CALLING:PREPROCESSING:SAMTOOLS_MERGE (sample2)",
+                    "[70/23143d] Submitted process > GERMLINE_VARIANT_CALLING:PREPROCESSING:GATKSPARK_MARKDUPLICATES (sample2)",
+                    "[48/3a6587] Submitted process > GERMLINE_VARIANT_CALLING:PREPROCESSING:GATKSPARK_MARKDUPLICATES (sample1)",
+                    "[c6/7f9a1a] Submitted process > GERMLINE_VARIANT_CALLING:PREPROCESSING:GATKSPARK_BASERECALIBRATOR (sample2)",
+                    "[f5/66b3fb] Submitted process > GERMLINE_VARIANT_CALLING:PREPROCESSING:GATKSPARK_BASERECALIBRATOR (sample1)",
+                    "[a9/ff8e74] Submitted process > GERMLINE_VARIANT_CALLING:PREPROCESSING:GATKSPARK_APPLYBQSR (sample2)",
+                    "[6d/a60342] Submitted process > GERMLINE_VARIANT_CALLING:PREPROCESSING:GATKSPARK_APPLYBQSR (sample1)",
+                    "[21/24294e] Submitted process > GERMLINE_VARIANT_CALLING:ANNOTATION:BEDTOOLS_GENOMECOV (sample1)",
+                    "[dd/55c6e4] Submitted process > GERMLINE_VARIANT_CALLING:ANNOTATION:BEDTOOLS_GENOMECOV (sample2)",
+                    "[a2/e97650] Submitted process > GERMLINE_VARIANT_CALLING:PREPROCESSING:GATK_COLLECTMETRICS (sample2)",
+                    "[c7/1081a3] Submitted process > GERMLINE_VARIANT_CALLING:PREPROCESSING:GATK_COLLECTMETRICS (sample1)",
+                    "[3d/28174e] Submitted process > GERMLINE_VARIANT_CALLING:VARIANT_CALLING:GATK_HAPLOTYPECALLER (sample2)",
+                    "[4a/2d364c] Submitted process > GERMLINE_VARIANT_CALLING:VARIANT_CALLING:GATK_HAPLOTYPECALLER (sample1)",
+                    "[d4/03566f] Submitted process > GERMLINE_VARIANT_CALLING:VARIANT_CALLING:GATK_GENOTYPEGVCFS (sample2)",
+                    "[e2/6bafcc] Submitted process > GERMLINE_VARIANT_CALLING:VARIANT_CALLING:GATK_GENOTYPEGVCFS (sample1)",
+                    "[00/7503dc] Submitted process > GERMLINE_VARIANT_CALLING:VARIANT_CALLING:GATK_SELECTVARIANTS_SNP (sample2)",
+                    "[6f/f33942] Submitted process > GERMLINE_VARIANT_CALLING:VARIANT_CALLING:GATK_SELECTVARIANTS_SNP (sample1)",
+                    "[18/014184] Submitted process > GERMLINE_VARIANT_CALLING:VARIANT_CALLING:GATK_SELECTVARIANTS_INDEL (sample1)",
+                    "[74/4b2335] Submitted process > GERMLINE_VARIANT_CALLING:VARIANT_CALLING:GATK_SELECTVARIANTS_INDEL (sample2)",
+                    "[2c/458be4] Submitted process > GERMLINE_VARIANT_CALLING:VARIANT_CALLING:GATK_VARIANTFILTRATION_SNP (sample2)",
+                    "[2e/130df9] Submitted process > GERMLINE_VARIANT_CALLING:VARIANT_CALLING:GATK_VARIANTFILTRATION_INDEL (sample2)",
+                    "[66/793a30] Submitted process > GERMLINE_VARIANT_CALLING:VARIANT_CALLING:GATK_VARIANTFILTRATION_SNP (sample1)",
+                    "[1b/49435c] Submitted process > GERMLINE_VARIANT_CALLING:VARIANT_CALLING:GATK_VARIANTFILTRATION_INDEL (sample1)",
+                    "[d2/f79f57] Submitted process > GERMLINE_VARIANT_CALLING:VARIANT_CALLING:GATK_MERGEVCFS (sample2)",
+                    "[21/fa6393] Submitted process > GERMLINE_VARIANT_CALLING:VARIANT_CALLING:GATK_MERGEVCFS (sample1)",
+                    "[75/6ce2b1] Submitted process > GERMLINE_VARIANT_CALLING:ANNOTATION:BCFTOOLS_STATS (sample2)",
+                    "[01/8ae14e] Submitted process > GERMLINE_VARIANT_CALLING:ANNOTATION:BCFTOOLS_STATS (sample1)",
+                    "[71/ebea4b] Submitted process > GERMLINE_VARIANT_CALLING:ANNOTATION:BCFTOOLS_QUERY (sample2)",
+                    "[3b/4cb75d] Submitted process > GERMLINE_VARIANT_CALLING:ANNOTATION:SNPEFF (sample2)",
+                    "[dc/550190] Submitted process > GERMLINE_VARIANT_CALLING:ANNOTATION:SNPEFF (sample1)",
+                    "[32/215e68] Submitted process > GERMLINE_VARIANT_CALLING:ANNOTATION:BCFTOOLS_QUERY (sample1)"
+                ],
+                "stderr": [
+                    
+                ],
+                "name": "workflow"
+            }
+        ],
+        "timestamp": "2026-03-04T01:24:34.069696765",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    }
+}

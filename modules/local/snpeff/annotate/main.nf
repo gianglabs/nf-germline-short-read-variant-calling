@@ -1,18 +1,17 @@
 process SNPEFF {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_medium'
     container 'quay.io/biocontainers/snpeff:5.1--hdfd78af_2'
-    
-    
+
     input:
     tuple val(meta), path(vcf), path(tbi)
-    val(genome)
-    
+    val genome
+
     output:
     tuple val(meta), path("*_annotated.vcf"), emit: vcf
     tuple val(meta), path("*_snpeff.log"), emit: log
-    path("versions.yml"), emit: versions
-    
+    path ("versions.yml"), emit: versions
+
     script:
     def prefix = "${meta.id}"
     def genome_db = genome ?: 'GRCh38.mane.1.0.refseq'

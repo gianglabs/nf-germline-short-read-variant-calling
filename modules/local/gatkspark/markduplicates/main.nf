@@ -7,10 +7,10 @@ process GATKSPARK_MARKDUPLICATES {
     tuple val(meta), path(bam)
 
     output:
-    tuple val(meta), path("${meta.id}.bam"),     emit: bam
+    tuple val(meta), path("${meta.id}.bam"), emit: bam
     tuple val(meta), path("${meta.id}.bam.bai"), emit: bai, optional: true
-    tuple val(meta), path("*.metrics"),     emit: metrics,   optional: true
-    path "versions.yml",                    emit: versions
+    tuple val(meta), path("*.metrics"), emit: metrics, optional: true
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when

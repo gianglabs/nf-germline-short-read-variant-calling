@@ -1,0 +1,22 @@
+nextflow_pipeline {
+
+    name "Test pipeline"
+    script "../main.nf"
+    tag "pipeline"
+
+    test("Test workflow completion") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+                input = "$projectDir/assets/samplesheet.csv"
+                genome = 'sarek_test'
+            }
+        }
+
+        then {
+           assert workflow.success
+           assert snapshot(workflow).match()
+        }
+    }
+}

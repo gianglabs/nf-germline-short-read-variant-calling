@@ -1,32 +1,32 @@
 process GATK_GENOTYPEGVCFS {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_medium'
     container 'broadinstitute/gatk:4.6.1.0'
-    
+
     input:
     tuple val(meta), path(gvcf), path(tbi)
     path reference
     path reference_fai
     path reference_dict
-    
+
     output:
     tuple val(meta), path("*_raw.vcf.gz"), emit: vcf
     tuple val(meta), path("*_raw.vcf.gz.tbi"), emit: tbi
     path "versions.yml", emit: versions
-    
+
     when:
     task.ext.when == null || task.ext.when
-    
+
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    
+
     """
     # Genotype GVCFs to VCF
     gatk GenotypeGVCFs \\
-        -R $reference \\
-        -V $gvcf \\
-        $args \\
+        -R ${reference} \\
+        -V ${gvcf} \\
+        ${args} \\
         -O ${prefix}_raw.vcf.gz
     
     # Create versions file
