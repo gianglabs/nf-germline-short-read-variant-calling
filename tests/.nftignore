@@ -1,0 +1,2 @@
+pipeline_info/*.{html,json,txt,yml}
+germline_variant_calling:preprocessing:fastp/*.fastq.gz

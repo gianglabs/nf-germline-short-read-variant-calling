@@ -6,6 +6,7 @@ channels = ["conda-forge", "bioconda"]
 platforms = ["linux-64"]
 
 [dependencies]
-nf-test = ">=0.9.4,<0.10"
-singularity = ">=3.8.6,<4"
+openjdk = "==17.0.18"
 nextflow = ">=25.10.4,<26"
+singularity = ">=2.4.6,<3"
+nf-test = ">=0.9.4,<0.10"
