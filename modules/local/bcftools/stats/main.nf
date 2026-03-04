@@ -1,17 +1,17 @@
 process BCFTOOLS_STATS {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_low'
     container 'quay.io/biocontainers/bcftools:1.17--haef29d1_0'
-    
+
     input:
     tuple val(meta), path(vcf), path(tbi)
-    
+
     output:
     tuple val(meta), path("*_variant_stats.txt"), emit: stats
     tuple val(meta), path("*_snp_count.txt"), emit: snp_count
     tuple val(meta), path("*_indel_count.txt"), emit: indel_count
-    path("versions.yml"), emit: versions
-    
+    path ("versions.yml"), emit: versions
+
     script:
     def prefix = "${meta.id}"
     """

@@ -1,18 +1,18 @@
 process BWAMEM2_INDEX {
-    tag "$fasta"
+    tag "${fasta}"
     label 'process_high'
     container "community.wave.seqera.io/library/bwa-mem2_htslib_samtools:e1f420694f8e42bd"
-    
+
     input:
     path fasta
-    
+
     output:
     path "${fasta}.*", emit: index
     path "versions.yml", emit: versions
-    
+
     when:
     task.ext.when == null || task.ext.when
-    
+
     script:
     """
     # Index the reference genome with BWA-MEM2
@@ -24,7 +24,7 @@ process BWAMEM2_INDEX {
         bwamem2: \$(echo \$(bwa-mem2 version 2>&1) | sed 's/.* //')
     END_VERSIONS
     """
-    
+
     stub:
     """
     touch ${fasta}.0123

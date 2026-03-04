@@ -1,33 +1,33 @@
 process GATK_SELECTVARIANTS_INDEL {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_low'
     container 'broadinstitute/gatk:4.6.1.0'
-    
+
     input:
     tuple val(meta), path(vcf), path(tbi)
     path reference
     path reference_fai
     path reference_dict
-    
+
     output:
     tuple val(meta), path("*_raw_indels.vcf.gz"), emit: vcf
     tuple val(meta), path("*_raw_indels.vcf.gz.tbi"), emit: tbi
     path "versions.yml", emit: versions
-    
+
     when:
     task.ext.when == null || task.ext.when
-    
+
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    
+
     """
     # Select Indels
     gatk SelectVariants \\
-        -R $reference \\
-        -V $vcf \\
+        -R ${reference} \\
+        -V ${vcf} \\
         --select-type-to-include INDEL \\
-        $args \\
+        ${args} \\
         -O ${prefix}_raw_indels.vcf.gz
     
     # Create versions file

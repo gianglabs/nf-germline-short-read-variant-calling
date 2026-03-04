@@ -1,4 +1,4 @@
-name: Testing e2e
+name: Linting
 
 on:
   push:
@@ -13,6 +13,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Running testing
+      - name: Running linting
         run: |
-          make test-e2e-snapshot
+          make lint
