@@ -145,13 +145,7 @@
                 "genome.fasta.bwt.2bit.64:md5,cd4bdf496eab05228a50c45ee43c1ed0",
                 "genome.fasta.pac:md5,8569fbdb2c98c6fb16dfa73d8eacb070",
                 "versions.yml:md5,2a4b9defcea58647c0b5b1cc8b2627f2",
-                "sample1_1_fastp.html:md5,533e98f5289e4ca2b182b1103a83c201",
-                "sample1_1_fastp.json:md5,86033ba61498d25ddb9833368cc3ebe7",
-                "sample2_1_fastp.html:md5,906dd3154cff23923f7bf37b68f67cb6",
-                "sample2_1_fastp.json:md5,6e1d5c005875e907da331a22bef0b6b6",
                 "versions.yml:md5,6c7466de4bab59e8df203424eb253fd6",
-                "sample1_alignment_summary.txt:md5,084562d2a7fa36e639e548720d66ee1e",
-                "sample2_alignment_summary.txt:md5,7139e537fbd956918087fce77206b589",
                 "versions.yml:md5,5fa3be89c5df1c030acae287599419dd",
                 "sample1_recal.bam:md5,92a4e508f76d8dfe7a7149ad8861feb3",
                 "sample1_recal.bam.bai:md5,0d76977b2e36046cc176112776c5fa4e",
@@ -183,7 +177,7 @@
                 "versions.yml:md5,d3949b20e639f1016e9745b2a1126960"
             ]
         ],
-        "timestamp": "2026-03-04T22:04:09.38746006",
+        "timestamp": "2026-03-04T23:25:53.360079629",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "25.10.4"
