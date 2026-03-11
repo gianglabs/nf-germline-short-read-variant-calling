@@ -26,9 +26,7 @@ workflow {
             meta.read_group = "${row.sample}_${meta.lane}"
             def reads = []
             reads.add(file(row.fastq_1))
-            if (row.fastq_2) {
-                reads.add(file(row.fastq_2))
-            }
+            reads.add(file(row.fastq_2))
             return [meta, reads]
         }
         .set { ch_input }
