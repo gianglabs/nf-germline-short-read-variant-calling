@@ -1,7 +1,7 @@
 [workspace]
-name = "gatk-variant-calling"
+name = "nf-germline-short-read-variant-calling"
 version = "0.1.0"
-description = "GATK variant calling workflow - from bash to Nextflow transformation"
+description = "Nextflow Workflow for Germline Short Read Variant Calling"
 channels = ["conda-forge", "bioconda"]
 platforms = ["linux-64"]
 
