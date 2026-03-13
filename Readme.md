@@ -42,9 +42,47 @@ For a detailed breakdown of the pipeline architecture, tool versions, parameters
 
 ## Quick Start
 
+### 1. Prepare a Samplesheet
+
+Create a CSV samplesheet with your input FASTQ files. The samplesheet format is:
+
+```csv
+sample,lane,fastq_1,fastq_2
+HG002,1,/path/to/HG002_R1.fastq.gz,/path/to/HG002_R2.fastq.gz
+HG003,1,/path/to/HG003_R1.fastq.gz,/path/to/HG003_R2.fastq.gz
+HG004,1,/path/to/HG004_R1.fastq.gz,/path/to/HG004_R2.fastq.gz
+```
+
+**Columns**:
+- `sample`: Sample identifier (used for output file naming)
+- `lane`: Sequencing lane (if multiple lanes, create separate rows per lane)
+- `fastq_1`: Path to first-in-pair (R1) FASTQ file (gzipped)
+- `fastq_2`: Path to second-in-pair (R2) FASTQ file (gzipped)
+
+### 2. Run the Pipeline
+
+```bash
+pixi run nextflow run main.nf \
+  --input samplesheet.csv \
+  --profile docker \
+  -resume
+```
+
+For test mode with sample data:
+
 ```bash
 pixi run nextflow run main.nf -profile docker,test -resume 
 ```
+
+### 3. View Results
+
+Output files will be generated in the `results/` directory:
+- Aligned BAM files
+- Variant calls (VCF format)
+- Annotated VCF files (SnpEff + VEP)
+- Quality control reports (MultiQC)
+
+For more advanced usage and configuration options, see the [Pipeline Architecture](docs/PIPELINE_ARCHITECTURE.md) documentation.
 
 ## Key Features
 
