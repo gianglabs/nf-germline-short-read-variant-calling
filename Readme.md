@@ -112,5 +112,8 @@ For detailed benchmarking methodology, results, and comparisons, see [Benchmarki
 
 ## Documentation
 
-- [Pipeline Architecture](docs/PIPELINE_ARCHITECTURE.md) - Detailed documentation with tool versions and parameters
+- [Pipeline Architecture](docs/architecture.md) - Detailed documentation with tool versions and parameters
 - [Benchmarking Guide](benchmark/Readme.md) - SV and SNP/INDEL benchmarking instructions with Truvari metrics
+
+## License
+MIT ([LICENSE](LICENSE))
