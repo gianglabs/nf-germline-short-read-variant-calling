@@ -23,25 +23,23 @@ The pipeline is optimized for the following workflow:
 
 ### SNP and INDEL Benchmarking Performance
 
-This pipeline is specifically optimized for **SNP and small INDEL detection** using **DeepVariant**. Benchmark results against HG002 (Genome in a Bottle) demonstrate competitive performance compared to nf-core/sarek:
+This pipeline is specifically optimized for **SNP and small INDEL detection** using **DeepVariant**. Benchmark results against HG002 (Genome in a Bottle) demonstrate competitive performance with nf-core/sarek:
 
-#### SNP Detection Performance (HG002)
+#### SNP Detection Performance (HG002 - DeepVariant)
 
-| Caller | Pipeline | Recall | Precision | F1 Score | TP | FN |
-|--------|----------|--------|-----------|----------|-----|-----|
-| **DeepVariant** | **nf-germline-short-read** | **99.39%** | **99.82%** | **99.60%** | 3,344,672 | 20,455 |
-| GATK HaplotypeCaller | nf-core/sarek | 99.26% | 99.16% | 99.21% | 3,340,110 | 25,017 |
-| FreeBayes | nf-core/sarek | 99.39% | 96.29% | 97.81% | 3,344,473 | 20,654 |
+| Pipeline | Recall | Precision | F1 Score | TP | FN |
+|----------|--------|-----------|----------|-----|-----|
+| nf-germline-short-read | 99.39% | 99.82% | 99.60% | 3,344,672 | 20,455 |
+| nf-core/sarek | 99.39% | 99.84% | 99.61% | 3,344,549 | 20,578 |
 
-#### INDEL Detection Performance (HG002)
+#### INDEL Detection Performance (HG002 - DeepVariant)
 
-| Caller | Pipeline | Recall | Precision | F1 Score | TP | FN |
-|--------|----------|--------|-----------|----------|--------|---------|
-| **DeepVariant** | **nf-germline-short-read** | **98.78%** | **99.38%** | **99.08%** | 519,079 | 6,390 |
-| GATK HaplotypeCaller | nf-core/sarek | 98.37% | 98.83% | 98.60% | 516,926 | 8,543 |
-| FreeBayes | nf-core/sarek | 95.99% | 96.40% | 96.20% | 504,432 | 21,037 |
+| Pipeline | Recall | Precision | F1 Score | TP | FN |
+|----------|--------|-----------|----------|--------|---------|
+| nf-germline-short-read | 98.78% | 99.38% | 99.08% | 519,079 | 6,390 |
+| nf-core/sarek | 98.97% | 99.46% | 99.21% | 520,048 | 5,421 |
 
-**Key Results**: DeepVariant in nf-germline-short-read achieves the highest SNP accuracy (99.60% F1) and excellent INDEL accuracy (99.08% F1), outperforming GATK HaplotypeCaller and FreeBayes from nf-core/sarek on the same HG002 test dataset.
+**Key Results**: Both pipelines achieve excellent SNP and INDEL accuracy with DeepVariant. nf-germline-short-read performs comparably to nf-core/sarek while maintaining a **simpler, streamlined workflow** optimized specifically for germline variant calling.
 
 ### Configuration for Primary Use Case
 
