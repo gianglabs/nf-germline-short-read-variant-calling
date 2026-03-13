@@ -6,7 +6,7 @@ This repository implements a comprehensive Nextflow pipeline for germline short-
 
 ![Nextflow Germline Variant Calling Pipeline](docs/nf-germline-pipeline.png)
 
-For a detailed breakdown of the pipeline architecture, tool versions, parameters, and usage examples, see [PIPELINE_ARCHITECTURE.md](docs/architecture.md).
+For a detailed breakdown of the pipeline architecture, tool versions, parameters, and usage examples, see [architecture.md](docs/architecture.md).
 
 
 ## Primary Use Case
@@ -103,7 +103,7 @@ Output files will be generated in the `results/` directory:
 - Annotated VCF files (SnpEff + VEP)
 - Quality control reports (MultiQC)
 
-For more advanced usage and configuration options, see the [Pipeline Architecture](docs/PIPELINE_ARCHITECTURE.md) documentation.
+For more advanced usage and configuration options, see the [Pipeline Architecture](docs/architecture.md) documentation.
 
 ## Key Features
 
