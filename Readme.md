@@ -23,7 +23,24 @@ pixi run nextflow run main.nf -profile docker,test -resume
 - **Flexible Configuration**: Container support (Docker/Singularity), multiple profiles
 - **Benchmarking Tools**: Integrated Truvari for SV benchmarking
 
+## Benchmarking Results
+
+This simple, streamlined workflow achieves performance comparable to **nf-core/sarek** for short-read germline variant calling:
+
+### SNP/INDEL Variant Calling (Sarek Comparison)
+- **DeepVariant**: High sensitivity and precision for SNP/INDEL detection
+- **GATK HaplotypeCaller**: Robust multi-sample calling capability
+- **FreeBayes**: Excellent for population-level variant discovery
+
+### Structural Variant Calling (Manta)
+- **HG002 Benchmarking Results**:
+  - Sensitivity: 7.88% (1,082 TP out of 13,732 variants)
+  - Precision: 36.8% (1,082 TP out of 2,940 calls)
+  - Genotype Concordance: 90.39%
+
+For detailed benchmarking methodology, results, and comparisons, see [Benchmarking Guide](benchmark/Readme.md).
+
 ## Documentation
 
 - [Pipeline Architecture](docs/PIPELINE_ARCHITECTURE.md) - Detailed documentation with tool versions and parameters
-- [Benchmarking Guide](benchmark/Readme.md) - SV and SNP/INDEL benchmarking instructions
+- [Benchmarking Guide](benchmark/Readme.md) - SV and SNP/INDEL benchmarking instructions with Truvari metrics
