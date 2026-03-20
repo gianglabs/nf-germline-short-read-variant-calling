@@ -81,13 +81,16 @@ workflow ALIGNMENT {
         .set { ch_bams_to_merge }
 
     SAMTOOLS_MERGE(
-        ch_bams_to_merge
+        ch_bams_to_merge,
+        ref_fasta
     )
     ch_versions = ch_versions.mix(SAMTOOLS_MERGE.out.versions)
 
 
     emit:
-    bam = SAMTOOLS_MERGE.out.bam // channel: [ val(meta), path(bam) ]
-    bai = SAMTOOLS_MERGE.out.bai // channel: [ val(meta), path(bai) ]
+    bam = SAMTOOLS_MERGE.out.bam // channel: [ val(meta), path(bam) ] - for continued processing
+    bai = SAMTOOLS_MERGE.out.bai // channel: [ val(meta), path(bai) ] - for continued processing
+    cram = SAMTOOLS_MERGE.out.cram // channel: [ val(meta), path(cram) ] - for storage/archival
+    crai = SAMTOOLS_MERGE.out.crai // channel: [ val(meta), path(crai) ] - for storage/archival
     versions = ch_versions // channel: path(versions.yml)
 }

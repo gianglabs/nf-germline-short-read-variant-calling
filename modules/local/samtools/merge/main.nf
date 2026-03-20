@@ -5,10 +5,13 @@ process SAMTOOLS_MERGE {
 
     input:
     tuple val(meta), path(bams)
+    path ref_fasta
 
     output:
-    tuple val(meta), path("*.bam"), emit: bam
-    tuple val(meta), path("*.bai"), emit: bai
+    tuple val(meta), path("*_merged.bam"), emit: bam
+    tuple val(meta), path("*_merged.bam.bai"), emit: bai
+    tuple val(meta), path("*_merged.cram"), emit: cram
+    tuple val(meta), path("*_merged.cram.crai"), emit: crai
     path "versions.yml", emit: versions
 
     when:
@@ -18,10 +21,14 @@ process SAMTOOLS_MERGE {
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
 
-    // If only one BAM, just symlink and index it; otherwise merge
+    // Strategy: Output BOTH BAM (for processing) and CRAM (for storage)
+    // This gives best of both worlds:
+    //   - BAM continues to downstream processing (fast, compatible)
+    //   - CRAM saved for long-term storage (45% space savings)
+    
     if (bams instanceof List && bams.size() > 1) {
         """
-        # Merge multiple BAM files
+        # Merge multiple BAM files to BAM for continued processing
         samtools merge \\
             -@ ${task.cpus} \\
             ${args} \\
@@ -33,6 +40,19 @@ process SAMTOOLS_MERGE {
             -@ ${task.cpus} \\
             ${prefix}_merged.bam
         
+        # Also create CRAM version for storage
+        samtools view \\
+            -@ ${task.cpus} \\
+            -T ${ref_fasta} \\
+            -C \\
+            -o ${prefix}_merged.cram \\
+            ${prefix}_merged.bam
+        
+        # Index the CRAM
+        samtools index \\
+            -@ ${task.cpus} \\
+            ${prefix}_merged.cram
+        
         # Create versions file
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
@@ -41,13 +61,27 @@ process SAMTOOLS_MERGE {
         """
     }
     else {
-        """
-        # Only one BAM file, create symlink and index
+        """ 
+        # Single BAM: create symlink for BAM output
         ln -s ${bams[0]} ${prefix}_merged.bam
         
+        # Index the BAM
         samtools index \\
             -@ ${task.cpus} \\
             ${prefix}_merged.bam
+        
+        # Convert to CRAM for storage
+        samtools view \\
+            -@ ${task.cpus} \\
+            -T ${ref_fasta} \\
+            -C \\
+            -o ${prefix}_merged.cram \\
+            ${bams[0]}
+        
+        # Index the CRAM
+        samtools index \\
+            -@ ${task.cpus} \\
+            ${prefix}_merged.cram
         
         # Create versions file
         cat <<-END_VERSIONS > versions.yml

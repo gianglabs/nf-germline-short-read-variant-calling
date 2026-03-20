@@ -1,7 +1,7 @@
 process BCFTOOLS_NORM {
     tag "$meta.id"
     label 'process_medium'
-    container'community.wave.seqera.io/library/bcftools:1.21--4335bec1d7b44d11'
+    container 'quay.io/biocontainers/bcftools:1.23--h3a4d415_0'
 
     input:
     tuple val(meta), path(vcf), path(tbi)

@@ -1,7 +1,7 @@
 process BCFTOOLS_QUERY {
     tag "${meta.id}"
     label 'process_low'
-    container 'quay.io/biocontainers/bcftools:1.17--haef29d1_0'
+    container 'quay.io/biocontainers/bcftools:1.23--h3a4d415_0'
 
     input:
     tuple val(meta), path(vcf), path(tbi)
