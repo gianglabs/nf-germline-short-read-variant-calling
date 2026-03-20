@@ -11,21 +11,21 @@ nextflow.enable.dsl = 2
 
 // Include modules
 // GATK-based variant calling
-include { GATK_HAPLOTYPECALLER } from '../../../modules/local/gatk/haplotypecaller/main'
-include { GATK_GENOTYPEGVCFS } from '../../../modules/local/gatk/genotypegvcfs/main'
-include { GATK_SELECTVARIANTS_SNP } from '../../../modules/local/gatk/selectvariants_snp/main'
-include { GATK_VARIANTFILTRATION_SNP } from '../../../modules/local/gatk/variantfiltration_snp/main'
-include { GATK_SELECTVARIANTS_INDEL } from '../../../modules/local/gatk/selectvariants_indel/main'
-include { GATK_VARIANTFILTRATION_INDEL } from '../../../modules/local/gatk/variantfiltration_indel/main'
-include { GATK_MERGEVCFS } from '../../../modules/local/gatk/mergevcfs/main'
+include { GATK_HAPLOTYPECALLER } from '../../../../modules/local/gatk/haplotypecaller/main'
+include { GATK_GENOTYPEGVCFS } from '../../../../modules/local/gatk/genotypegvcfs/main'
+include { GATK_SELECTVARIANTS_SNP } from '../../../../modules/local/gatk/selectvariants_snp/main'
+include { GATK_VARIANTFILTRATION_SNP } from '../../../../modules/local/gatk/variantfiltration_snp/main'
+include { GATK_SELECTVARIANTS_INDEL } from '../../../../modules/local/gatk/selectvariants_indel/main'
+include { GATK_VARIANTFILTRATION_INDEL } from '../../../../modules/local/gatk/variantfiltration_indel/main'
+include { GATK_MERGEVCFS } from '../../../../modules/local/gatk/mergevcfs/main'
 
 // FreeBayes-based variant calling
-include { FREEBAYES } from '../../../modules/local/freebayes/main'
+include { FREEBAYES } from '../../../../modules/local/freebayes/main'
 
 // DeepVariant-based variant calling
-include { DEEPVARIANT } from '../../../modules/local/deepvariant/main'  
+include { DEEPVARIANT } from '../../../../modules/local/deepvariant/main'  
 
-workflow VARIANT_CALLING {
+workflow VARIANT_CALLING_SMALL {
     take:
     variant_caller // value: variant calling variant_caller (e.g. "GATK")
     bam // channel: [ val(meta), path(bam) ]
