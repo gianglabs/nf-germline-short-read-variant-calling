@@ -1,7 +1,7 @@
 // Include subworkflows
 include { ALIGNMENT } from '../subworkflows/local/alignment/main'
 include { PREPROCESSING } from '../subworkflows/local/alignment_preprocessing/main'
-include { VARIANT_CALLING } from '../subworkflows/local/variant_calling/main'
+include { VARIANT_CALLING_SMALL } from '../subworkflows/local/variant_calling/small/main'
 include { VARIANT_ANNOTATION } from '../subworkflows/local/variant_annotation/main'
 include { VARIANT_ALIGNMENT_QUALITY_CONTROL } from '../subworkflows/local/variant_alignment_quality_control/main'
 
@@ -139,7 +139,7 @@ workflow GERMLINE_VARIANT_CALLING {
         ch_final_bai = ALIGNMENT.out.bai
     }
    
-    VARIANT_CALLING(
+    VARIANT_CALLING_SMALL(
         params.variant_caller,
         ch_final_bam,
         ch_final_bai,
@@ -149,11 +149,11 @@ workflow GERMLINE_VARIANT_CALLING {
         dbsnp_vcf,
         dbsnp_tbi,
     )
-    ch_versions = ch_versions.mix(VARIANT_CALLING.out.versions)
+    ch_versions = ch_versions.mix(VARIANT_CALLING_SMALL.out.versions)
 
     VARIANT_ANNOTATION(
-        VARIANT_CALLING.out.vcf,
-        VARIANT_CALLING.out.vcf_tbi,
+        VARIANT_CALLING_SMALL.out.vcf,
+        VARIANT_CALLING_SMALL.out.vcf_tbi,
         params.snpeff_cache,
         params.vep_cache,
         params.vep_cache_version,
@@ -165,8 +165,8 @@ workflow GERMLINE_VARIANT_CALLING {
 
 
     VARIANT_ALIGNMENT_QUALITY_CONTROL(
-        VARIANT_CALLING.out.vcf,
-        VARIANT_CALLING.out.vcf_tbi,
+        VARIANT_CALLING_SMALL.out.vcf,
+        VARIANT_CALLING_SMALL.out.vcf_tbi,
         ch_final_bam,
         ch_final_bai,
     )
