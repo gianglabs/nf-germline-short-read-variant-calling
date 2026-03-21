@@ -6,6 +6,9 @@ include { VARIANT_CALLING_SV } from '../subworkflows/local/variant_calling/sv/ma
 include { VARIANT_ANNOTATION } from '../subworkflows/local/variant_annotation/main'
 include { VARIANT_ALIGNMENT_QUALITY_CONTROL } from '../subworkflows/local/variant_alignment_quality_control/main'
 
+// Include modules for CRAM conversion
+include { SAMTOOLS_VIEW } from '../modules/local/samtools/view/main'
+
 /*
 ========================================================================================
     NAMED WORKFLOW FOR PIPELINE
@@ -14,7 +17,10 @@ include { VARIANT_ALIGNMENT_QUALITY_CONTROL } from '../subworkflows/local/varian
 
 workflow GERMLINE_VARIANT_CALLING {
     take:
-    reads_ch // channel: [ val(meta), [ path(read1), path(read2) ] ]
+    input_ch // channel: 
+             // [ val(meta), [ path(read1), path(read2) ] ] for FASTQ mode
+             // or [ val(meta), path(bam), path(bai) ] for BAM mode
+             // or [ val(meta), path(cram), path(crai) ] for CRAM mode
 
     main:
     ch_versions = channel.empty()
@@ -101,26 +107,51 @@ workflow GERMLINE_VARIANT_CALLING {
     known_indels_tbi = channel.fromPath(params.known_indels_tbi, checkIfExists: true).collect()
 
     //
-    // SUBWORKFLOW: PREPROCESSING (Steps 1-3)
+    // Detect input mode and branch accordingly
+    // FASTQ mode: run full pipeline (alignment + preprocessing + variant calling)
+    // BAM/CRAM mode: skip alignment and optional preprocessing, go directly to variant calling
+    //
+    input_branched = input_ch.branch {
+        fastq: it[1] instanceof List && it[1][0].toString().endsWith('.fastq.gz')
+        bam: it[1].toString().endsWith('.bam')
+        cram: it[1].toString().endsWith('.cram')
+    }
+
+    //
+    // SUBWORKFLOW: PREPROCESSING (Steps 1-3) - FASTQ ONLY
     // Includes: FASTP, BWA-MEM2, Sorting, Merging
     //
+    
+    // Initialize empty channels for alignment output
+    ch_alignment_bam = channel.empty()
+    ch_alignment_bai = channel.empty()
+    
+    // Call ALIGNMENT with fastq input - empty channel will cause it to exit early
     ALIGNMENT(
-        reads_ch,
+        input_branched.fastq,
         ref_fasta,
         ref_fai,
         ref_dict,
         params.bwa2_index,
         params.index_bwa2_reference,
     )
-    ch_versions = ch_versions.mix(ALIGNMENT.out.versions)
+    
+    // Only mix versions from ALIGNMENT if it ran
+    ALIGNMENT.out.versions.ifEmpty(channel.empty()).set { align_versions }
+    ch_versions = ch_versions.mix(align_versions)
+    
+    // Get alignment output or empty if no FASTQ input
+    ch_alignment_bam = ALIGNMENT.out.bam
+    ch_alignment_bai = ALIGNMENT.out.bai
+    
     //
     // SUBWORKFLOW: PREPROCESSING (Steps 4-8)
-    // Includes: FASTP, BWA-MEM2, Sorting, Merging, MarkDuplicates, BQSR, Metrics
+    // Includes: MarkDuplicates, BQSR, Metrics
     //
     if(!params.skip_preprocessing){
         PREPROCESSING(
             params.preprocessor,
-            ALIGNMENT.out.bam,
+            ch_alignment_bam,
             ref_fasta,
             ref_fai,
             ref_dict,
@@ -134,12 +165,21 @@ workflow GERMLINE_VARIANT_CALLING {
         ch_final_bam = PREPROCESSING.out.bam
         ch_final_bai = PREPROCESSING.out.bai
     }
-
-   
     else {
-        ch_final_bam = ALIGNMENT.out.bam
-        ch_final_bai = ALIGNMENT.out.bai
+        ch_final_bam = ch_alignment_bam
+        ch_final_bai = ch_alignment_bai
     }
+
+    // For BAM/CRAM mode: use input directly or convert if needed
+    SAMTOOLS_VIEW(
+        input_branched.cram,
+        ref_fasta
+    )
+    ch_versions = ch_versions.mix(SAMTOOLS_VIEW.out.versions)
+
+    // Combine all BAM sources
+    ch_final_bam = ch_final_bam.mix(input_branched.bam.map { meta, bam, bai -> [meta, bam] }).mix(SAMTOOLS_VIEW.out.bam)
+    ch_final_bai = ch_final_bai.mix(input_branched.bam.map { meta, bam, bai -> [meta, bai] }).mix(SAMTOOLS_VIEW.out.bai)
    
     VARIANT_CALLING_SMALL(
         params.variant_caller,
@@ -161,22 +201,23 @@ workflow GERMLINE_VARIANT_CALLING {
         ref_fasta,
         ref_fai,
         ref_dict,
-    )
+     )
     ch_versions = ch_versions.mix(VARIANT_CALLING_SV.out.versions)
 
-
-    VARIANT_ANNOTATION(
-        VARIANT_CALLING_SMALL.out.vcf,
-        VARIANT_CALLING_SMALL.out.vcf_tbi,
-        params.snpeff_cache,
-        params.vep_cache,
-        params.vep_cache_version,
-        params.vep_genome,
-        params.vep_species,
-        ref_fasta
-    )
-    // ch_versions = ch_versions.mix(VARIANT_ANNOTATION.out.versions)
-
+    // Skip annotation if flag is set
+    if (!params.skip_annotation) {
+        VARIANT_ANNOTATION(
+            VARIANT_CALLING_SMALL.out.vcf,
+            VARIANT_CALLING_SMALL.out.vcf_tbi,
+            params.snpeff_cache,
+            params.vep_cache,
+            params.vep_cache_version,
+            params.vep_genome,
+            params.vep_species,
+            ref_fasta
+        )
+        // ch_versions = ch_versions.mix(VARIANT_ANNOTATION.out.versions)
+    }
 
     VARIANT_ALIGNMENT_QUALITY_CONTROL(
         VARIANT_CALLING_SMALL.out.vcf,

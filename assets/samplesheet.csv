@@ -1,2 +1,2 @@
 sample,lane,fastq_1,fastq_2
-sample1,1,assets/input/HG002_subset_R1.fastq.gz,assets/input/HG002_subset_R2.fastq.gz
+sample1,L001,assets/input/fastq/HG002_subset_R1.fastq.gz,assets/input/fastq/HG002_subset_R2.fastq.gz

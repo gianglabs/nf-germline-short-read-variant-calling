@@ -4,7 +4,7 @@ nextflow_pipeline {
     script "../main.nf"
     tag "pipeline"
     profile "test,docker"
-    test("Test workflow completion") {
+    test("single-fastq") {
         
         when {
             params {
