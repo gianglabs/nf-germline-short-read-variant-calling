@@ -24,7 +24,6 @@ workflow VARIANT_CALLING_SV {
     bai // channel: [ val(meta), path(bai) ] or [ val(meta), path(crai) ]
     ref_fasta // value: path(fasta)
     ref_fai // value: path(fai)
-    ref_dict // value: path(dict)
 
     main:
     ch_versions = channel.empty()

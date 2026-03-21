@@ -181,17 +181,27 @@ workflow GERMLINE_VARIANT_CALLING {
     ch_final_bam = ch_final_bam.mix(input_branched.bam.map { meta, bam, bai -> [meta, bam] }).mix(SAMTOOLS_VIEW.out.bam)
     ch_final_bai = ch_final_bai.mix(input_branched.bam.map { meta, bam, bai -> [meta, bai] }).mix(SAMTOOLS_VIEW.out.bai)
    
-    VARIANT_CALLING_SMALL(
-        params.variant_caller,
-        ch_final_bam,
-        ch_final_bai,
-        ref_fasta,
-        ref_fai,
-        ref_dict,
-        dbsnp_vcf,
-        dbsnp_tbi,
-    )
-    ch_versions = ch_versions.mix(VARIANT_CALLING_SMALL.out.versions)
+    // Small Variant Calling (optional - can be skipped with --skip_variant_calling)
+    if (!params.skip_variant_calling) {
+        VARIANT_CALLING_SMALL(
+            params.variant_caller,
+            ch_final_bam,
+            ch_final_bai,
+            ref_fasta,
+            ref_fai,
+            ref_dict,
+            dbsnp_vcf,
+            dbsnp_tbi,
+        )
+        ch_versions = ch_versions.mix(VARIANT_CALLING_SMALL.out.versions)
+        
+        // Initialize empty channels for small variant outputs when skipped
+        ch_small_vcf = VARIANT_CALLING_SMALL.out.vcf
+        ch_small_vcf_tbi = VARIANT_CALLING_SMALL.out.vcf_tbi
+    } else {
+        ch_small_vcf = channel.empty()
+        ch_small_vcf_tbi = channel.empty()
+    }
 
     // Structural Variant Calling (optional)
     VARIANT_CALLING_SV(
@@ -200,29 +210,31 @@ workflow GERMLINE_VARIANT_CALLING {
         ch_final_bai,
         ref_fasta,
         ref_fai,
-        ref_dict,
      )
-    ch_versions = ch_versions.mix(VARIANT_CALLING_SV.out.versions)
+     ch_versions = ch_versions.mix(VARIANT_CALLING_SV.out.versions)
 
-    // Skip annotation if flag is set
-    if (!params.skip_annotation) {
-        VARIANT_ANNOTATION(
-            VARIANT_CALLING_SMALL.out.vcf,
-            VARIANT_CALLING_SMALL.out.vcf_tbi,
-            params.snpeff_cache,
-            params.vep_cache,
-            params.vep_cache_version,
-            params.vep_genome,
-            params.vep_species,
-            ref_fasta
-        )
-        // ch_versions = ch_versions.mix(VARIANT_ANNOTATION.out.versions)
-    }
+     // Skip annotation if flag is set (only annotate if small variant calling ran)
+     if (!params.skip_annotation && !params.skip_variant_calling) {
+         VARIANT_ANNOTATION(
+             ch_small_vcf,
+             ch_small_vcf_tbi,
+             params.snpeff_cache,
+             params.vep_cache,
+             params.vep_cache_version,
+             params.vep_genome,
+             params.vep_species,
+             ref_fasta
+         )
+         // ch_versions = ch_versions.mix(VARIANT_ANNOTATION.out.versions)
+     }
 
-    VARIANT_ALIGNMENT_QUALITY_CONTROL(
-        VARIANT_CALLING_SMALL.out.vcf,
-        VARIANT_CALLING_SMALL.out.vcf_tbi,
-        ch_final_bam,
-        ch_final_bai,
-    )
+     // Quality control (only run if small variant calling ran)
+     if (!params.skip_variant_calling) {
+         VARIANT_ALIGNMENT_QUALITY_CONTROL(
+             ch_small_vcf,
+             ch_small_vcf_tbi,
+             ch_final_bam,
+             ch_final_bai,
+         )
+     }
 }
