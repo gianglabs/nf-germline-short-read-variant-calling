@@ -2,6 +2,7 @@
 include { ALIGNMENT } from '../subworkflows/local/alignment/main'
 include { PREPROCESSING } from '../subworkflows/local/alignment_preprocessing/main'
 include { VARIANT_CALLING_SMALL } from '../subworkflows/local/variant_calling/small/main'
+include { VARIANT_CALLING_SV } from '../subworkflows/local/variant_calling/sv/main'
 include { VARIANT_ANNOTATION } from '../subworkflows/local/variant_annotation/main'
 include { VARIANT_ALIGNMENT_QUALITY_CONTROL } from '../subworkflows/local/variant_alignment_quality_control/main'
 
@@ -80,6 +81,7 @@ workflow GERMLINE_VARIANT_CALLING {
      - Known Indels VCF: ${params.known_indels}
      - Input Samplesheet: ${params.input}
      - Output Directory: ${params.outdir}
+     - SV Caller: ${params.sv_caller ? params.sv_caller : 'None'}
     ==============================================================================================================================
     """.stripIndent()
     )
@@ -150,6 +152,18 @@ workflow GERMLINE_VARIANT_CALLING {
         dbsnp_tbi,
     )
     ch_versions = ch_versions.mix(VARIANT_CALLING_SMALL.out.versions)
+
+    // Structural Variant Calling (optional)
+    VARIANT_CALLING_SV(
+        params.sv_caller,
+        ch_final_bam,
+        ch_final_bai,
+        ref_fasta,
+        ref_fai,
+        ref_dict,
+    )
+    ch_versions = ch_versions.mix(VARIANT_CALLING_SV.out.versions)
+
 
     VARIANT_ANNOTATION(
         VARIANT_CALLING_SMALL.out.vcf,
