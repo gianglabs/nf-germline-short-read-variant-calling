@@ -2,7 +2,7 @@ name: Testing e2e
 
 on:
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   clone:
@@ -13,4 +13,4 @@ jobs:
 
       - name: Running testing
         run: |
-          make test-e2e-snapshot
+          make test-fastq-snapshot
