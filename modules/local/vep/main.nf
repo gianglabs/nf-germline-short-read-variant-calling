@@ -19,12 +19,12 @@ process VEP {
     tuple val(meta), val("${task.process}"), val('ensemblvep'), path("*.html"), topic: multiqc_files, emit: report, optional: true
     tuple val("${task.process}"), val('ensemblvep'), eval("vep --help | sed -n '/ensembl-vep/s/.*: //p'"), topic: versions, emit: versions_ensemblvep
     path "versions.yml", emit: versions
-   
+
     script:
     def temp_vep_cache = "temp_vep_cache/${species}/${cache_version}_${genome}"
     """
     mkdir -p ${temp_vep_cache}
-    cache_dirname=\$(find -L $cache -name all_vars.gz -print -quit | xargs dirname) 
+    cache_dirname=\$(find -L ${cache} -name all_vars.gz -print -quit | xargs dirname) 
     mv \$cache_dirname ${temp_vep_cache}
 
     vep \\
@@ -47,5 +47,4 @@ process VEP {
         ensembl-vep: \$(vep --version 2>&1 | grep -oP 'ensembl-vep [0-9.]+' | sed 's/ensembl-vep //' || echo "104.3")
     END_VERSIONS
     """
-    
 }

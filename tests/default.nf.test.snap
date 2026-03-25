@@ -1,5 +1,5 @@
 {
-    "Test workflow completion": {
+    "single-fastq": {
         "content": [
             [
                 "alignment",
@@ -17,29 +17,7 @@
                 "variant_alignment_qc",
                 "variant_alignment_qc/sample1",
                 "variant_alignment_qc/sample1/sample1_coverage.bedgraph",
-                "variant_alignment_qc/sample1/sample1_indel_count.txt",
-                "variant_alignment_qc/sample1/sample1_snp_count.txt",
-                "variant_alignment_qc/sample1/sample1_variant_stats.txt",
-                "variant_alignment_qc/sample1/sample1_variants.bed",
-                "variant_alignment_qc/sample1/versions.yml",
-                "variant_annotation",
-                "variant_annotation/sample1",
-                "variant_annotation/sample1/sample1.ann.vcf",
-                "variant_annotation/sample1/sample1.csv",
-                "variant_annotation/sample1/sample1.genes.txt",
-                "variant_annotation/sample1/sample1.html",
-                "variant_annotation/sample1/sample1.vcf.gz",
-                "variant_annotation/sample1/sample1.vcf.gz.tbi",
-                "variant_annotation/sample1/snpEff_summary.html",
-                "variant_annotation/sample1/versions.yml",
-                "variant_calling",
-                "variant_calling/small",
-                "variant_calling/small/sample1",
-                "variant_calling/small/sample1/sample1.g.vcf.gz",
-                "variant_calling/small/sample1/sample1.g.vcf.gz.tbi",
-                "variant_calling/small/sample1/sample1.vcf.gz",
-                "variant_calling/small/sample1/sample1.vcf.gz.tbi",
-                "variant_calling/small/sample1/versions.yml"
+                "variant_alignment_qc/sample1/versions.yml"
             ],
             [
                 "chr22.fasta.0123:md5,8fa3abf34200ccbbdd8536f9cefed95d",
@@ -47,15 +25,10 @@
                 "chr22.fasta.ann:md5,9891c001c334b01fbd835340997e37be",
                 "chr22.fasta.bwt.2bit.64:md5,fa64d6b80c9ad135477ab75fe7c44413",
                 "chr22.fasta.pac:md5,a1bd3051e7e86e022fe732609e1e7c4f",
-                "sample1_coverage.bedgraph:md5,f1e88a884635a85966dfd15fcb137273",
-                "sample1_indel_count.txt:md5,f760ff3894d8b6c7583306926bf4b37f",
-                "sample1_snp_count.txt:md5,bdfe320f3fb11b6f0dcb4d5a27e3b82c",
-                "sample1_variant_stats.txt:md5,d845db6c67b16a82ce7cf5eb344ed035",
-                "sample1_variants.bed:md5,45af47590426fc2d85d5c20e25abb8fe",
-                "sample1.genes.txt:md5,31567aff71be6d7c0b52f8af1b644845"
+                "sample1_coverage.bedgraph:md5,f1e88a884635a85966dfd15fcb137273"
             ]
         ],
-        "timestamp": "2026-03-21T01:39:25.006100044",
+        "timestamp": "2026-03-25T21:07:20.484101153",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "25.10.4"

@@ -65,26 +65,81 @@ pixi run nextflow run main.nf -profile docker -resume
 
 ### 1. Prepare a Samplesheet
 
-Create a CSV samplesheet with your input FASTQ files. The samplesheet format is:
+Create a CSV samplesheet with your input. The pipeline supports three input modes:
 
+#### Mode A: FASTQ Input (Full Pipeline)
 ```csv
 sample,lane,fastq_1,fastq_2
-HG002,1,/path/to/HG002_R1.fastq.gz,/path/to/HG002_R2.fastq.gz
-HG003,1,/path/to/HG003_R1.fastq.gz,/path/to/HG003_R2.fastq.gz
-HG004,1,/path/to/HG004_R1.fastq.gz,/path/to/HG004_R2.fastq.gz
+HG002,L001,/path/to/HG002_R1.fastq.gz,/path/to/HG002_R2.fastq.gz
+HG003,L001,/path/to/HG003_R1.fastq.gz,/path/to/HG003_R2.fastq.gz
 ```
 
-**Columns**:
-- `sample`: Sample identifier (used for output file naming)
+#### Mode B: BAM Input (Skip Alignment)
+```csv
+sample,lane,bam,bai
+HG002,L001,/path/to/HG002.bam,/path/to/HG002.bam.bai
+HG003,L001,/path/to/HG003.bam,/path/to/HG003.bam.bai
+```
+
+#### Mode C: CRAM Input (Skip Alignment + Auto-Convert)
+```csv
+sample,lane,cram,crai
+HG002,L001,/path/to/HG002.cram,/path/to/HG002.cram.crai
+HG003,L001,/path/to/HG003.cram,/path/to/HG003.cram.crai
+```
+
+**CRAM Benefits**:
+- **Compressed input**: CRAM files are ~4x smaller than BAM (78% compression)
+- **Faster pipeline**: Skip alignment step when re-running variant calling
+- **Automatic conversion**: CRAM→BAM conversion integrated into pipeline
+- **Supported for all callers**: DeepVariant, GATK, FreeBayes, and all SV callers (Manta, Delly, TIDDIT, LUMPY, CNVnator)
+
+**Samplesheet Columns**:
+- `sample`: Sample identifier
 - `lane`: Sequencing lane (if multiple lanes, create separate rows per lane)
-- `fastq_1`: Path to first-in-pair (R1) FASTQ file (gzipped)
-- `fastq_2`: Path to second-in-pair (R2) FASTQ file (gzipped)
+- **FASTQ mode**: `fastq_1`, `fastq_2` (gzipped FASTQ files)
+- **BAM mode**: `bam`, `bai` (aligned BAM + index)
+- **CRAM mode**: `cram`, `crai` (compressed alignment + index)
 
 ### 2. Run the Pipeline
 
+#### Standard Run (FASTQ Input)
 ```bash
-pixi run nextflow run main.nf \
+nextflow run main.nf \
   --input samplesheet.csv \
+  --profile docker \
+  -resume
+```
+
+#### CRAM Input Example
+```bash
+# Run with CRAM files (auto-converts to BAM before variant calling)
+nextflow run main.nf \
+  --input samplesheet_cram.csv \
+  --profile docker \
+  -resume
+```
+
+#### Advanced Options
+```bash
+# With multiple SV callers
+nextflow run main.nf \
+  --input samplesheet_cram.csv \
+  --sv_caller "manta,delly,lumpy" \
+  --profile docker \
+  -resume
+
+# Skip annotation for faster processing
+nextflow run main.nf \
+  --input samplesheet.csv \
+  --skip_annotation \
+  --profile docker \
+  -resume
+
+# Use alternative variant caller (GATK or FreeBayes)
+nextflow run main.nf \
+  --input samplesheet.csv \
+  --variant_caller gatk \
   --profile docker \
   -resume
 ```
@@ -92,25 +147,38 @@ pixi run nextflow run main.nf \
 For test mode with sample data:
 
 ```bash
-pixi run nextflow run main.nf -profile docker,test -resume 
+nextflow run main.nf -profile docker,test -resume 
 ```
 
 ### 3. View Results
 
-Output files will be generated in the `results/` directory:
-- Aligned BAM files
-- Variant calls (VCF format)
-- Annotated VCF files (SnpEff + VEP)
-- Quality control reports (MultiQC)
+Output files will be generated in the `results/` directory. File structure depends on input mode:
+
+#### FASTQ Input Results:
+- `results/alignment/*.bam` - Aligned BAM files
+- `results/alignment_qc/` - Alignment quality reports
+- `results/variant_calling/*.vcf.gz` - Raw variant calls
+- `results/variant_annotation/*.vcf` - Annotated variants
+
+#### CRAM Input Results:
+- `results/variant_calling/*.vcf.gz` - Raw variant calls (from converted BAM)
+- `results/variant_annotation/*.vcf` - Annotated variants
+- No intermediate BAM files (discarded after variant calling unless configured otherwise)
+
+Common output files:
+- `results/multiqc_report.html` - Interactive quality control report
+- `results/pipeline_info/` - Execution timeline and trace logs
 
 For more advanced usage and configuration options, see the [Pipeline Architecture](docs/architecture.md) documentation.
 
 ## Key Features
 
+- **Multiple Input Formats**: FASTQ (full pipeline), BAM, and CRAM (skip alignment, auto-convert)
 - **Multiple Variant Callers**: DeepVariant (default), GATK HaplotypeCaller, FreeBayes
 - **Quality Control**: FastQC, MultiQC, samtools stats
 - **Variant Annotation**: SnpEff, VEP
-- **Structural Variants**: Manta SV calling (with benchmarking support)
+- **Structural Variants**: Manta, Delly, TIDDIT, LUMPY, CNVnator (multi-caller support)
+- **CRAM Compression**: Built-in CRAM→BAM conversion for efficient variant re-calling
 - **Flexible Configuration**: Container support (Docker/Singularity), multiple profiles
 - **Benchmarking Tools**: Integrated Truvari for SV benchmarking
 

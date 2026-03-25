@@ -1,16 +1,16 @@
 process BCFTOOLS_NORM {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_medium'
     container 'quay.io/biocontainers/bcftools:1.23--h3a4d415_0'
 
     input:
     tuple val(meta), path(vcf), path(tbi)
-    path(fasta)
+    path fasta
 
     output:
     tuple val(meta), path("${meta.id}.vcf.gz"), emit: vcf
     tuple val(meta), path("${meta.id}.vcf.gz.tbi"), emit: tbi
-    path "versions.yml"               , emit: versions
+    path "versions.yml", emit: versions
 
     script:
     """
@@ -18,7 +18,7 @@ process BCFTOOLS_NORM {
         --fasta-ref ${fasta} \\
         --output ${meta.id}.vcf.gz \\
         --output-type z \\
-        --threads $task.cpus \\
+        --threads ${task.cpus} \\
         ${vcf}
     tabix -p vcf ${meta.id}.vcf.gz
     cat <<-END_VERSIONS > versions.yml

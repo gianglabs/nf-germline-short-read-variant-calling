@@ -24,7 +24,6 @@ workflow VARIANT_ANNOTATION {
     vep_species // value
     fasta // path to reference fasta
 
-
     main:
     ch_versions = channel.empty()
     ch_snpeff_cache_db = channel.fromPath(snpeff_cache, checkIfExists: true).collect()
@@ -32,13 +31,13 @@ workflow VARIANT_ANNOTATION {
 
     BCFTOOLS_NORM(
         vcf.join(vcf_tbi),
-        fasta
+        fasta,
     )
     ch_versions = ch_versions.mix(BCFTOOLS_NORM.out.versions)
 
     SNPEFF(
         BCFTOOLS_NORM.out.vcf.join(BCFTOOLS_NORM.out.tbi),
-        ch_snpeff_cache_db
+        ch_snpeff_cache_db,
     )
     ch_versions = ch_versions.mix(SNPEFF.out.versions)
 
@@ -48,7 +47,7 @@ workflow VARIANT_ANNOTATION {
         vep_cache_version,
         vep_genome,
         vep_species,
-        fasta
+        fasta,
     )
     ch_versions = ch_versions.mix(VEP.out.versions)
 

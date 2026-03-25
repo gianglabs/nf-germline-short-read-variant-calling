@@ -16,7 +16,14 @@ truvari = "==5.4.0"
 ucsc-liftover = ">=469,<483"
 crossmap = ">=0.7.0"
 bcftools = ">=1.17"
+cnvnator = ">=0.4.1"
+survivor = ">=1.0.7"
+
+[feature.manta.dependencies]
+manta = "*"
+
 
 [environments]
 svbench = ["truvari"]
 snpindelbench = ["snpindel"]
+manta = ["manta"]

@@ -29,12 +29,12 @@ workflow PREPROCESSING {
     main:
     ch_versions = channel.empty()
 
-    if (preprocessor=="gatk"){
+    if (preprocessor == "gatk") {
         //
         // STEP 5: Mark Duplicates with GATK Spark
         //
         GATKSPARK_MARKDUPLICATES(
-        aligned_bams
+            aligned_bams
         )
         ch_versions = ch_versions.mix(GATKSPARK_MARKDUPLICATES.out.versions)
 
@@ -78,22 +78,21 @@ workflow PREPROCESSING {
         ch_processed_bai = GATKSPARK_APPLYBQSR.out.bai
         ch_alignment_summary = GATK_COLLECTMETRICS.out.alignment_summary
         ch_alignment_insert_metrics = GATK_COLLECTMETRICS.out.insert_metrics
-
-    } else if (preprocessor=="sambamba"){
+    }
+    else if (preprocessor == "sambamba") {
         SAMBAMBA_MARKDUP(
             aligned_bams
         )
         ch_versions = ch_versions.mix(SAMBAMBA_MARKDUP.out.versions)
         ch_processed_bam = SAMBAMBA_MARKDUP.out.bam
         ch_processed_bai = SAMBAMBA_MARKDUP.out.bai
-        ch_alignment_summary = channel.empty() // no alignment summary metrics with sambamba
-        ch_alignment_insert_metrics = channel.empty() // no insert metrics with sambamba
-        
+        ch_alignment_summary = channel.empty()
+        // no alignment summary metrics with sambamba
+        ch_alignment_insert_metrics = channel.empty()
     }
     else {
-        error "Unsupported preprocessor: ${preprocessor}"
+        error("Unsupported preprocessor: ${preprocessor}")
     }
-   
 
     emit:
     bam = ch_processed_bam // channel: [ val(meta), path(bam) ]

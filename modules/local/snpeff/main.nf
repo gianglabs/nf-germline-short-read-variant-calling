@@ -4,15 +4,15 @@ process SNPEFF {
     container 'quay.io/biocontainers/snpeff:5.4.0c--hdfd78af_0'
 
     input:
-    tuple val(meta),  path(vcf), path(vcf_tbi)
-    path(cache)
+    tuple val(meta), path(vcf), path(vcf_tbi)
+    path cache
 
     output:
-    tuple val(meta), path("*.ann.vcf"),     emit: vcf
-    tuple val(meta), path("*.csv"),         emit: report
-    tuple val(meta), path("*.html"),        emit: summary_html
-    tuple val(meta), path("*.genes.txt"),   emit: genes_txt
-    path "versions.yml",                    emit: versions
+    tuple val(meta), path("*.ann.vcf"), emit: vcf
+    tuple val(meta), path("*.csv"), emit: report
+    tuple val(meta), path("*.html"), emit: summary_html
+    tuple val(meta), path("*.genes.txt"), emit: genes_txt
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when

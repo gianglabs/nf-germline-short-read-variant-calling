@@ -1,19 +1,19 @@
 process DEEPVARIANT {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_high'
     container "docker.io/google/deepvariant:1.9.0"
 
     input:
     tuple val(meta), path(bam), path(bai)
-    path(fasta)
-    path(fai)
+    path fasta
+    path fai
 
     output:
-    tuple val(meta), path("${meta.id}.vcf.gz")             , emit: vcf
-    tuple val(meta), path("${meta.id}.vcf.gz.{tbi,csi}")   , emit: vcf_tbi
-    tuple val(meta), path("${meta.id}.g.vcf.gz")           , emit: gvcf
-    tuple val(meta), path("${meta.id}.g.vcf.gz.{tbi,csi}") , emit: gvcf_tbi
-    path "versions.yml"                                   , emit: versions
+    tuple val(meta), path("${meta.id}.vcf.gz"), emit: vcf
+    tuple val(meta), path("${meta.id}.vcf.gz.{tbi,csi}"), emit: vcf_tbi
+    tuple val(meta), path("${meta.id}.g.vcf.gz"), emit: gvcf
+    tuple val(meta), path("${meta.id}.g.vcf.gz.{tbi,csi}"), emit: gvcf_tbi
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when

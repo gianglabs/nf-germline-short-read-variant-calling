@@ -28,7 +28,9 @@ workflow ALIGNMENT {
 
     // Check if BWA index needs to be generated
     // If empty, generate it; otherwise use provided index
+    // Note: BWAMEM2_INDEX will only run if reads_ch has data
     if (index_bwa2_reference) {
+        // Create index only when reads are actually provided
         BWAMEM2_INDEX(ref_fasta)
         ch_versions = ch_versions.mix(BWAMEM2_INDEX.out.versions)
         bwa2_index_ch = BWAMEM2_INDEX.out.index
@@ -82,10 +84,9 @@ workflow ALIGNMENT {
 
     SAMTOOLS_MERGE(
         ch_bams_to_merge,
-        ref_fasta
+        ref_fasta,
     )
     ch_versions = ch_versions.mix(SAMTOOLS_MERGE.out.versions)
-
 
     emit:
     bam = SAMTOOLS_MERGE.out.bam // channel: [ val(meta), path(bam) ] - for continued processing
