@@ -1,16 +1,16 @@
 process SMOOVE {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_high'
     container 'quay.io/biocontainers/smoove:0.2.8--h9ee0642_1'
 
     input:
     tuple val(meta), path(input), path(index)
-    path(ref_fasta)
-    path(ref_fai)
+    path ref_fasta
+    path ref_fai
 
     output:
     tuple val(meta), path("*.vcf.gz"), emit: vcf
-    path("versions.yml"), emit: versions
+    path ("versions.yml"), emit: versions
 
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"

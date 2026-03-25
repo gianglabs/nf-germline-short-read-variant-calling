@@ -1,19 +1,19 @@
 process MANTA {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_high'
     container "quay.io/biocontainers/manta:1.6.0--py27h9948957_6"
 
     input:
     tuple val(meta), path(bam), path(bai)
-    path(fasta)
-    path(fai)
+    path fasta
+    path fai
 
     output:
-    tuple val(meta), path("${meta.id}.manta.vcf.gz")     , emit: vcf
-    tuple val(meta), path("${meta.id}.manta.vcf.gz.tbi") , emit: vcf_tbi
-    tuple val(meta), path("${meta.id}.candidateSV.vcf.gz")   , emit: candidate_vcf, optional: true
+    tuple val(meta), path("${meta.id}.manta.vcf.gz"), emit: vcf
+    tuple val(meta), path("${meta.id}.manta.vcf.gz.tbi"), emit: vcf_tbi
+    tuple val(meta), path("${meta.id}.candidateSV.vcf.gz"), emit: candidate_vcf, optional: true
     tuple val(meta), path("${meta.id}.candidateSV.vcf.gz.tbi"), emit: candidate_vcf_tbi, optional: true
-    path "versions.yml"                                       , emit: versions
+    path "versions.yml", emit: versions
 
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"

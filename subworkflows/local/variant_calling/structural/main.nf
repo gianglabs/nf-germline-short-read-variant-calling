@@ -31,7 +31,6 @@ workflow STRUCTURAL_VARIANT_CALLING {
     main:
     ch_versions = channel.empty()
     ch_out_vcf = channel.empty()
-    ch_out_vcf_tbi = channel.empty()
 
     // Detect if input is CRAM or BAM and convert if necessary
     bam_input = bam.branch {
@@ -42,13 +41,13 @@ workflow STRUCTURAL_VARIANT_CALLING {
     // Convert CRAM to BAM if needed
     SAMTOOLS_VIEW(
         bam_input.cram.join(bai),
-        ref_fasta
+        ref_fasta,
     )
     ch_versions = ch_versions.mix(SAMTOOLS_VIEW.out.versions)
 
     // Merge converted BAM with original BAM files
     bam_ready = bam_input.bam.join(bai).mix(SAMTOOLS_VIEW.out.bam.join(SAMTOOLS_VIEW.out.bai))
-    
+
     if (sv_caller.split(",").contains("manta")) {
         MANTA(
             bam_ready,
@@ -90,34 +89,32 @@ workflow STRUCTURAL_VARIANT_CALLING {
             bam_ready,
             ref_fasta,
             ref_fai,
-            genome
+            genome,
         )
         ch_versions = ch_versions.mix(CNVNATOR.out.versions)
-        
-        ch_out_vcf = ch_out_vcf.mix(CNVNATOR.out.vcf)
 
+        ch_out_vcf = ch_out_vcf.mix(CNVNATOR.out.vcf)
     }
     if (!sv_caller.split(",").any { it.trim() in ["manta", "tiddit", "delly", "smoove", "cnvnator"] }) {
-        error "Unsupported SV caller: ${sv_caller}. Supported callers: manta, tiddit, delly, smoove, cnvnator"
+        error("Unsupported SV caller: ${sv_caller}. Supported callers: manta, tiddit, delly, smoove, cnvnator")
     }
 
     // Group VCF files by sample ID for merge
     // TODO: configure to merge the tools smartly
     ch_vcf_grouped = ch_out_vcf.groupTuple(by: 0)
-    
+
     SURVIVOR_MERGE(
         ch_vcf_grouped
     )
     ch_versions = ch_versions.mix(SURVIVOR_MERGE.out.versions)
 
-    TABIX_INDEX_VCF(     
+    TABIX_INDEX_VCF(
         ch_vcf_grouped
     )
     ch_versions = ch_versions.mix(TABIX_INDEX_VCF.out.versions)
 
     emit:
-    // VCF Channel - merged and indexed outputs
-    vcf = TABIX_INDEX_VCF.out.vcf          // channel: [ val(meta), path(vcf.gz) ]
-    vcf_tbi = TABIX_INDEX_VCF.out.vcf_tbi  // channel: [ val(meta), path(vcf.gz.tbi) ] 
+    vcf = TABIX_INDEX_VCF.out.vcf // channel: [ val(meta), path(vcf.gz) ]
+    vcf_tbi = TABIX_INDEX_VCF.out.vcf_tbi // channel: [ val(meta), path(vcf.gz.tbi) ] 
     versions = ch_versions
 }

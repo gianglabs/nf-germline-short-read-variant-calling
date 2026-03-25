@@ -24,9 +24,6 @@ include { SAMTOOLS_VIEW } from '../modules/local/samtools/view/main'
 workflow GERMLINE_VARIANT_CALLING {
     take:
     input_ch // channel: 
-             // [ val(meta), [ path(read1), path(read2) ] ] for FASTQ mode
-             // or [ val(meta), path(bam), path(bai) ] for BAM mode
-             // or [ val(meta), path(cram), path(crai) ] for CRAM mode
 
     main:
     ch_versions = channel.empty()
@@ -127,11 +124,11 @@ workflow GERMLINE_VARIANT_CALLING {
     // SUBWORKFLOW: PREPROCESSING (Steps 1-3) - FASTQ ONLY
     // Includes: FASTP, BWA-MEM2, Sorting, Merging
     //
-    
+
     // Initialize empty channels for alignment output
     ch_alignment_bam = channel.empty()
     ch_alignment_bai = channel.empty()
-    
+
     // Call ALIGNMENT with fastq input - empty channel will cause it to exit early
     ALIGNMENT(
         input_branched.fastq,
@@ -141,20 +138,20 @@ workflow GERMLINE_VARIANT_CALLING {
         params.bwa2_index,
         params.index_bwa2_reference,
     )
-    
+
     // Only mix versions from ALIGNMENT if it ran
     ALIGNMENT.out.versions.ifEmpty(channel.empty()).set { align_versions }
     ch_versions = ch_versions.mix(align_versions)
-    
+
     // Get alignment output or empty if no FASTQ input
     ch_alignment_bam = ALIGNMENT.out.bam
     ch_alignment_bai = ALIGNMENT.out.bai
-    
+
     //
     // SUBWORKFLOW: PREPROCESSING (Steps 4-8)
     // Includes: MarkDuplicates, BQSR, Metrics
     //
-    if(params.preprocessor){
+    if (params.preprocessor) {
         PREPROCESSING(
             params.preprocessor,
             ch_alignment_bam,
@@ -166,7 +163,7 @@ workflow GERMLINE_VARIANT_CALLING {
             known_indels_vcf,
             known_indels_tbi,
         )
-        
+
         ch_versions = ch_versions.mix(PREPROCESSING.out.versions)
         ch_final_bam = PREPROCESSING.out.bam
         ch_final_bai = PREPROCESSING.out.bai
@@ -179,16 +176,16 @@ workflow GERMLINE_VARIANT_CALLING {
     // For BAM/CRAM mode: use input directly or convert if needed
     SAMTOOLS_VIEW(
         input_branched.cram,
-        ref_fasta
+        ref_fasta,
     )
     ch_versions = ch_versions.mix(SAMTOOLS_VIEW.out.versions)
 
     // Combine all BAM sources
     ch_final_bam = ch_final_bam.mix(input_branched.bam.map { meta, bam, bai -> [meta, bam] }).mix(SAMTOOLS_VIEW.out.bam)
     ch_final_bai = ch_final_bai.mix(input_branched.bam.map { meta, bam, bai -> [meta, bai] }).mix(SAMTOOLS_VIEW.out.bai)
-   
+
     // Small Variant Calling (optional - can be skipped with --skip_variant_calling)
-    if (params.small_variant_caller){
+    if (params.small_variant_caller) {
         SMALL_VARIANT_CALLING(
             params.small_variant_caller,
             ch_final_bam,
@@ -204,25 +201,25 @@ workflow GERMLINE_VARIANT_CALLING {
         // Initialize empty channels for small variant outputs when skipped
         ch_small_vcf = SMALL_VARIANT_CALLING.out.vcf
         ch_small_vcf_tbi = SMALL_VARIANT_CALLING.out.vcf_tbi
-
-    } else {
+    }
+    else {
         ch_small_vcf = channel.empty()
         ch_small_vcf_tbi = channel.empty()
     }
 
     // Structural Variant Calling (optional)
-    if (params.structural_variant_caller){
+    if (params.structural_variant_caller) {
         STRUCTURAL_VARIANT_CALLING(
             params.structural_variant_caller,
             ch_final_bam,
             ch_final_bai,
             ref_fasta,
             ref_fai,
-            params.genome
+            params.genome,
         )
         ch_versions = ch_versions.mix(STRUCTURAL_VARIANT_CALLING.out.versions)
     }
-     // Skip annotation if flag is set (only annotate if small variant calling ran)
+    // Skip annotation if flag is set (only annotate if small variant calling ran)
     VARIANT_ANNOTATION(
         ch_small_vcf,
         ch_small_vcf_tbi,
@@ -231,16 +228,15 @@ workflow GERMLINE_VARIANT_CALLING {
         params.vep_cache_version,
         params.vep_genome,
         params.vep_species,
-        ref_fasta
+        ref_fasta,
     )
     ch_versions = ch_versions.mix(VARIANT_ANNOTATION.out.versions)
 
-     // Quality control (only run if small variant calling ran)
+    // Quality control (only run if small variant calling ran)
     VARIANT_ALIGNMENT_QUALITY_CONTROL(
-             ch_small_vcf,
-             ch_small_vcf_tbi,
-             ch_final_bam,
-             ch_final_bai,
+        ch_small_vcf,
+        ch_small_vcf_tbi,
+        ch_final_bam,
+        ch_final_bai,
     )
-     
 }

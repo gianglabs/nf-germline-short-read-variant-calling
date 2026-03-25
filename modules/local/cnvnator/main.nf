@@ -1,18 +1,18 @@
 process CNVNATOR {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_high'
     container "quay.io/biocontainers/cnvnator:0.4.1--py313h9efa6d7_12"
 
     input:
     tuple val(meta), path(bam), path(bai)
-    path(fasta)
-    path(fai)
-    val(genome)
+    path fasta
+    path fai
+    val genome
 
     output:
-    tuple val(meta), path("${meta.id}.cnvnator.vcf"    )     , emit: vcf
-    tuple val(meta), path("${meta.id}.root")        , emit: root
-    path "versions.yml"                             , emit: versions
+    tuple val(meta), path("${meta.id}.cnvnator.vcf"), emit: vcf
+    tuple val(meta), path("${meta.id}.root"), emit: root
+    path "versions.yml", emit: versions
 
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"

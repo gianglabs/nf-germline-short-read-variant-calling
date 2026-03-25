@@ -5,7 +5,7 @@ process SAMTOOLS_VIEW {
 
     input:
     tuple val(meta), path(input_file), path(input_index)
-    path(ref_fasta)
+    path ref_fasta
 
     output:
     tuple val(meta), path("${prefix}.bam"), emit: bam

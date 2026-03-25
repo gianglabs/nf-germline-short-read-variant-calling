@@ -24,19 +24,21 @@ workflow {
             // Support both new format (with lane) and old format (without lane)
             meta.lane = row.lane ?: "L001"
             meta.read_group = "${row.sample}_${meta.lane}"
-            
+
             // Check if input contains FASTQ files or aligned files (CRAM/BAM)
             if (row.cram && row.crai) {
                 // CRAM mode: for rerunning with aligned files
                 def cram = file(row.cram, checkIfExists: true)
                 def crai = file(row.crai, checkIfExists: true)
                 return [meta, cram, crai]
-            } else if (row.bam && row.bai) {
+            }
+            else if (row.bam && row.bai) {
                 // BAM mode: for rerunning with aligned files
                 def bam = file(row.bam, checkIfExists: true)
                 def bai = file(row.bai, checkIfExists: true)
                 return [meta, bam, bai]
-            } else {
+            }
+            else {
                 // FASTQ mode: standard pipeline
                 def reads = []
                 reads.add(file(row.fastq_1, checkIfExists: true))

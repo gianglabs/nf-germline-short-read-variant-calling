@@ -1,5 +1,5 @@
 process SURVIVOR_MERGE {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_low'
     container 'quay.io/biocontainers/survivor:1.0.7--h9a82719_1'
 
@@ -7,8 +7,8 @@ process SURVIVOR_MERGE {
     tuple val(meta), path(vcf_files)
 
     output:
-    tuple val(meta), path("*.survivor.vcf")   , emit: vcf
-    path("versions.yml")             , emit: versions
+    tuple val(meta), path("*.survivor.vcf"), emit: vcf
+    path ("versions.yml"), emit: versions
 
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"

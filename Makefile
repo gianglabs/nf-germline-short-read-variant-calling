@@ -153,7 +153,7 @@ test-cram-sv-all: ${HOME}/.pixi/bin/pixi
 
 # Lint
 lint: ${HOME}/.pixi/bin/pixi
-	${HOME}/.pixi/bin/pixi run nextflow lint . -format
+	${HOME}/.pixi/bin/pixi run nextflow lint $(shell find . -name "*.nf") -format
 
 # Clean
 clean:

@@ -25,7 +25,7 @@ process SAMTOOLS_MERGE {
     // This gives best of both worlds:
     //   - BAM continues to downstream processing (fast, compatible)
     //   - CRAM saved for long-term storage (45% space savings)
-    
+
     if (bams instanceof List && bams.size() > 1) {
         """
         # Merge multiple BAM files to BAM for continued processing

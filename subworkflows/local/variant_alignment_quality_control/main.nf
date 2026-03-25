@@ -11,7 +11,7 @@ workflow VARIANT_ALIGNMENT_QUALITY_CONTROL {
 
     main:
     ch_versions = channel.empty()
-     //
+    //
     // STEP 15: Variant Statistics with bcftools
     //
     BCFTOOLS_STATS(
@@ -39,5 +39,4 @@ workflow VARIANT_ALIGNMENT_QUALITY_CONTROL {
     bed = BCFTOOLS_QUERY.out.bed
     bedgraph = BEDTOOLS_GENOMECOV.out.bedgraph
     versions = ch_versions
-
 }

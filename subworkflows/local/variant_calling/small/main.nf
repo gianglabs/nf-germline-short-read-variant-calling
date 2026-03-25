@@ -23,7 +23,7 @@ include { GATK_MERGEVCFS } from '../../../../modules/local/gatk/mergevcfs/main'
 include { FREEBAYES } from '../../../../modules/local/freebayes/main'
 
 // DeepVariant-based variant calling
-include { DEEPVARIANT } from '../../../../modules/local/deepvariant/main'  
+include { DEEPVARIANT } from '../../../../modules/local/deepvariant/main'
 
 workflow SMALL_VARIANT_CALLING {
     take:
@@ -39,8 +39,8 @@ workflow SMALL_VARIANT_CALLING {
     main:
     ch_versions = channel.empty()
 
-    if (variant_caller == "gatk"){
-         //
+    if (variant_caller == "gatk") {
+        //
         // STEP 9: Variant Calling with HaplotypeCaller (GVCF mode)
         //
         GATK_HAPLOTYPECALLER(
@@ -106,10 +106,7 @@ workflow SMALL_VARIANT_CALLING {
         // STEP 13: Merge filtered SNPs and Indels
         //
         GATK_MERGEVCFS(
-            GATK_VARIANTFILTRATION_SNP.out.vcf
-                .join(GATK_VARIANTFILTRATION_SNP.out.vcf_tbi)
-                .join(GATK_VARIANTFILTRATION_INDEL.out.vcf)
-                .join(GATK_VARIANTFILTRATION_INDEL.out.vcf_tbi),
+            GATK_VARIANTFILTRATION_SNP.out.vcf.join(GATK_VARIANTFILTRATION_SNP.out.vcf_tbi).join(GATK_VARIANTFILTRATION_INDEL.out.vcf).join(GATK_VARIANTFILTRATION_INDEL.out.vcf_tbi),
             ref_fasta,
             ref_fai,
             ref_dict,
@@ -131,7 +128,8 @@ workflow SMALL_VARIANT_CALLING {
         ch_versions = ch_versions.mix(FREEBAYES.out.versions)
         ch_out_vcf = FREEBAYES.out.vcf
         ch_out_vcf_tbi = FREEBAYES.out.vcf_tbi
-        ch_out_gvcf = channel.empty() // FreeBayes does not produce gVCF output
+        ch_out_gvcf = channel.empty()
+        // FreeBayes does not produce gVCF output
         ch_out_gvcf_tbi = channel.empty()
     }
     else if (variant_caller == "deepvariant") {
@@ -147,16 +145,13 @@ workflow SMALL_VARIANT_CALLING {
         ch_out_gvcf_tbi = DEEPVARIANT.out.gvcf_tbi
     }
     else {
-        error "Unsupported variant calling variant_caller: ${variant_caller}"
+        error("Unsupported variant calling variant_caller: ${variant_caller}")
     }
 
     emit:
-    // VCF Channel - independent outputs
-    vcf = ch_out_vcf          // channel: [ val(meta), path(vcf.gz) ]
-    vcf_tbi = ch_out_vcf_tbi  // channel: [ val(meta), path(vcf.gz.tbi) ]
-    
-    // GVCF Channel - independent outputs
-    gvcf = ch_out_gvcf            // channel: [ val(meta), path(gvcf.gz) ] (null if not applicable)
-    gvcf_tbi = ch_out_gvcf_tbi    // channel: [ val(meta), path(gvcf.gz.tbi) ] (null if not applicable)
+    vcf = ch_out_vcf // channel: [ val(meta), path(vcf.gz) ]
+    vcf_tbi = ch_out_vcf_tbi // channel: [ val(meta), path(vcf.gz.tbi) ]
+    gvcf = ch_out_gvcf // channel: [ val(meta), path(gvcf.gz) ] (null if not applicable)
+    gvcf_tbi = ch_out_gvcf_tbi // channel: [ val(meta), path(gvcf.gz.tbi) ] (null if not applicable)
     versions = ch_versions
 }

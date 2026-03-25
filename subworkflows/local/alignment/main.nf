@@ -84,10 +84,9 @@ workflow ALIGNMENT {
 
     SAMTOOLS_MERGE(
         ch_bams_to_merge,
-        ref_fasta
+        ref_fasta,
     )
     ch_versions = ch_versions.mix(SAMTOOLS_MERGE.out.versions)
-
 
     emit:
     bam = SAMTOOLS_MERGE.out.bam // channel: [ val(meta), path(bam) ] - for continued processing
