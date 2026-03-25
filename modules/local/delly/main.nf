@@ -1,7 +1,7 @@
 process DELLY {
     tag "$meta.id"
     label 'process_high'
-    container "docker.io/dellytools/delly:v1.3.1"
+    container "quay.io/biocontainers/delly:1.7.2--h4d20210_0"
 
     input:
     tuple val(meta), path(bam), path(bai)
@@ -9,12 +9,8 @@ process DELLY {
     path(fai)
 
     output:
-    tuple val(meta), path("${meta.id}.bcf")     , emit: bcf
-    tuple val(meta), path("${meta.id}.bcf.csi") , emit: bcf_csi
+    tuple val(meta), path("${meta.id}.delly.vcf")     , emit: vcf
     path "versions.yml"                         , emit: versions
-
-    when:
-    task.ext.when == null || task.ext.when
 
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
@@ -22,8 +18,7 @@ process DELLY {
     # Run Delly
     delly call \\
         -g ${fasta} \\
-        -o ${prefix}.bcf \\
-        ${bam}
+        ${bam} > ${prefix}.delly.vcf
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

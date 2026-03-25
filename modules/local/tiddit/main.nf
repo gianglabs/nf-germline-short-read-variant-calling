@@ -9,13 +9,11 @@ process TIDDIT {
     path(fai)
 
     output:
-    tuple val(meta), path("${meta.id}.vcf")          , emit: vcf
+    tuple val(meta), path("${meta.id}.tiddit.vcf")          , emit: vcf
     tuple val(meta), path("${meta.id}.ploidy.tab")   , emit: ploidy, optional: true
     tuple val(meta), path("${meta.id}.signals.tab")  , emit: signals, optional: true
     path "versions.yml"                              , emit: versions
 
-    when:
-    task.ext.when == null || task.ext.when
 
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
@@ -23,13 +21,13 @@ process TIDDIT {
     tiddit --sv \\
         --bam ${bam} \\
         --ref ${fasta} \\
-        -o ${prefix} \\
+        -o ${prefix}.tiddit \\
         --threads ${task.cpus} \\
         --skip_assembly
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        tiddit: \$(tiddit --version 2>&1 | grep -oP 'TIDDIT-\\K[0-9.]+' || echo "3.9.4")
+        tiddit: \$(tiddit --version 2>&1 | grep -o 'TIDDIT-\\K[0-9.]+' || echo "3.9.4")
     END_VERSIONS
     """
 }

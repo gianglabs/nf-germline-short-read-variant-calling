@@ -1,9 +1,15 @@
 // Include subworkflows
 include { ALIGNMENT } from '../subworkflows/local/alignment/main'
 include { PREPROCESSING } from '../subworkflows/local/alignment_preprocessing/main'
-include { VARIANT_CALLING_SMALL } from '../subworkflows/local/variant_calling/small/main'
-include { VARIANT_CALLING_SV } from '../subworkflows/local/variant_calling/sv/main'
+
+// Variant calling
+include { SMALL_VARIANT_CALLING } from '../subworkflows/local/variant_calling/small/main'
+include { STRUCTURAL_VARIANT_CALLING } from '../subworkflows/local/variant_calling/structural/main'
+
+// Variant annotation
 include { VARIANT_ANNOTATION } from '../subworkflows/local/variant_annotation/main'
+
+// QC
 include { VARIANT_ALIGNMENT_QUALITY_CONTROL } from '../subworkflows/local/variant_alignment_quality_control/main'
 
 // Include modules for CRAM conversion
@@ -148,7 +154,7 @@ workflow GERMLINE_VARIANT_CALLING {
     // SUBWORKFLOW: PREPROCESSING (Steps 4-8)
     // Includes: MarkDuplicates, BQSR, Metrics
     //
-    if(!params.skip_preprocessing){
+    if(params.preprocessor){
         PREPROCESSING(
             params.preprocessor,
             ch_alignment_bam,
@@ -182,9 +188,9 @@ workflow GERMLINE_VARIANT_CALLING {
     ch_final_bai = ch_final_bai.mix(input_branched.bam.map { meta, bam, bai -> [meta, bai] }).mix(SAMTOOLS_VIEW.out.bai)
    
     // Small Variant Calling (optional - can be skipped with --skip_variant_calling)
-    if (!params.skip_variant_calling) {
-        VARIANT_CALLING_SMALL(
-            params.variant_caller,
+    if (params.small_variant_caller){
+        SMALL_VARIANT_CALLING(
+            params.small_variant_caller,
             ch_final_bam,
             ch_final_bai,
             ref_fasta,
@@ -193,48 +199,48 @@ workflow GERMLINE_VARIANT_CALLING {
             dbsnp_vcf,
             dbsnp_tbi,
         )
-        ch_versions = ch_versions.mix(VARIANT_CALLING_SMALL.out.versions)
-        
+
+        ch_versions = ch_versions.mix(SMALL_VARIANT_CALLING.out.versions)
         // Initialize empty channels for small variant outputs when skipped
-        ch_small_vcf = VARIANT_CALLING_SMALL.out.vcf
-        ch_small_vcf_tbi = VARIANT_CALLING_SMALL.out.vcf_tbi
+        ch_small_vcf = SMALL_VARIANT_CALLING.out.vcf
+        ch_small_vcf_tbi = SMALL_VARIANT_CALLING.out.vcf_tbi
+
     } else {
         ch_small_vcf = channel.empty()
         ch_small_vcf_tbi = channel.empty()
     }
 
     // Structural Variant Calling (optional)
-    VARIANT_CALLING_SV(
-        params.sv_caller,
-        ch_final_bam,
-        ch_final_bai,
-        ref_fasta,
-        ref_fai,
-     )
-     ch_versions = ch_versions.mix(VARIANT_CALLING_SV.out.versions)
-
+    if (params.structural_variant_caller){
+        STRUCTURAL_VARIANT_CALLING(
+            params.structural_variant_caller,
+            ch_final_bam,
+            ch_final_bai,
+            ref_fasta,
+            ref_fai,
+            params.genome
+        )
+        ch_versions = ch_versions.mix(STRUCTURAL_VARIANT_CALLING.out.versions)
+    }
      // Skip annotation if flag is set (only annotate if small variant calling ran)
-     if (!params.skip_annotation && !params.skip_variant_calling) {
-         VARIANT_ANNOTATION(
-             ch_small_vcf,
-             ch_small_vcf_tbi,
-             params.snpeff_cache,
-             params.vep_cache,
-             params.vep_cache_version,
-             params.vep_genome,
-             params.vep_species,
-             ref_fasta
-         )
-         // ch_versions = ch_versions.mix(VARIANT_ANNOTATION.out.versions)
-     }
+    VARIANT_ANNOTATION(
+        ch_small_vcf,
+        ch_small_vcf_tbi,
+        params.snpeff_cache,
+        params.vep_cache,
+        params.vep_cache_version,
+        params.vep_genome,
+        params.vep_species,
+        ref_fasta
+    )
+    ch_versions = ch_versions.mix(VARIANT_ANNOTATION.out.versions)
 
      // Quality control (only run if small variant calling ran)
-     if (!params.skip_variant_calling) {
-         VARIANT_ALIGNMENT_QUALITY_CONTROL(
+    VARIANT_ALIGNMENT_QUALITY_CONTROL(
              ch_small_vcf,
              ch_small_vcf_tbi,
              ch_final_bam,
              ch_final_bai,
-         )
-     }
+    )
+     
 }

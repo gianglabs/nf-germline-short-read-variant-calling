@@ -25,7 +25,7 @@ include { FREEBAYES } from '../../../../modules/local/freebayes/main'
 // DeepVariant-based variant calling
 include { DEEPVARIANT } from '../../../../modules/local/deepvariant/main'  
 
-workflow VARIANT_CALLING_SMALL {
+workflow SMALL_VARIANT_CALLING {
     take:
     variant_caller // value: variant calling variant_caller (e.g. "GATK")
     bam // channel: [ val(meta), path(bam) ]

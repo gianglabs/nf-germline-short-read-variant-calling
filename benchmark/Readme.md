@@ -96,11 +96,9 @@ Benchmarking is performed within the **high-confidence regions** defined by GIAB
 To benchmark nf-score/sarek and this workflow small variant calls against HG002 truth set:
 
 ```bash
-cd benchmark
-pixi run --environment snpindelbench bash benchmark_snpindel_sarek.sh
-pixi run --environment snpindelbench bash benchmark_snpindel_simple_workflow.sh
+cd benchmark/small/benchmark
+pixi run --environment snpindelbench bash benchmark_and_summary.sh
 ```
-
 
 ### Structural Variant (SV) Benchmarking
 
@@ -125,6 +123,7 @@ pixi run --environment svbench bash benchmark_sv_sarek.sh
 ```
 
 This script will:
+
 - Normalize the Manta VCF output
 - Convert from hg38 to hg19 coordinates
 - Run Truvari comparison
@@ -133,6 +132,7 @@ This script will:
 #### Expected Output
 
 The benchmark generates:
+
 - Normalized and converted VCF files
 - Truvari output directory with TP/FP/FN classifications
 - Summary metrics in text format with:
@@ -143,6 +143,7 @@ The benchmark generates:
   - Genotype concordance
 
 Example output:
+
 ```
 True Positives: 1082
 False Positives: 1858

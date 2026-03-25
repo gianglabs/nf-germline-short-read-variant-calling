@@ -1,7 +1,7 @@
 process MANTA {
     tag "$meta.id"
     label 'process_high'
-    container "docker.io/michaelfranklin/manta:1.6.0"
+    container "quay.io/biocontainers/manta:1.6.0--py27h9948957_6"
 
     input:
     tuple val(meta), path(bam), path(bai)
@@ -9,14 +9,11 @@ process MANTA {
     path(fai)
 
     output:
-    tuple val(meta), path("${meta.id}.diploidSV.vcf.gz")     , emit: vcf
-    tuple val(meta), path("${meta.id}.diploidSV.vcf.gz.tbi") , emit: vcf_tbi
+    tuple val(meta), path("${meta.id}.manta.vcf.gz")     , emit: vcf
+    tuple val(meta), path("${meta.id}.manta.vcf.gz.tbi") , emit: vcf_tbi
     tuple val(meta), path("${meta.id}.candidateSV.vcf.gz")   , emit: candidate_vcf, optional: true
     tuple val(meta), path("${meta.id}.candidateSV.vcf.gz.tbi"), emit: candidate_vcf_tbi, optional: true
     path "versions.yml"                                       , emit: versions
-
-    when:
-    task.ext.when == null || task.ext.when
 
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
@@ -33,13 +30,11 @@ process MANTA {
         -m local
 
     # Rename output files
-    mv manta_run/results/variants/diploidSV.vcf.gz ${prefix}.diploidSV.vcf.gz
-    mv manta_run/results/variants/diploidSV.vcf.gz.tbi ${prefix}.diploidSV.vcf.gz.tbi
+    mv manta_run/results/variants/diploidSV.vcf.gz ${prefix}.manta.vcf.gz
+    mv manta_run/results/variants/diploidSV.vcf.gz.tbi ${prefix}.manta.vcf.gz.tbi
     
-    if [ -f manta_run/results/variants/candidateSV.vcf.gz ]; then
-        mv manta_run/results/variants/candidateSV.vcf.gz ${prefix}.candidateSV.vcf.gz
-        mv manta_run/results/variants/candidateSV.vcf.gz.tbi ${prefix}.candidateSV.vcf.gz.tbi
-    fi
+    mv manta_run/results/variants/candidateSV.vcf.gz ${prefix}.candidateSV.vcf.gz
+    mv manta_run/results/variants/candidateSV.vcf.gz.tbi ${prefix}.candidateSV.vcf.gz.tbi
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

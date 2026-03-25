@@ -56,7 +56,7 @@ test-fastq-update-snapshot: ${HOME}/.pixi/bin/pixi
 test-cram: ${HOME}/.pixi/bin/pixi
 	${HOME}/.pixi/bin/pixi run nextflow run main.nf \
 		--input assets/samplesheet_cram.csv \
-		-profile docker,test_cram \
+		-profile docker,test_cram --structural_variant_caller="manta,tiddit,delly,cnvnator,smoove" \
 		--index_bwa2_reference false \
 		-resume
 
@@ -72,7 +72,7 @@ test-cram-multi: ${HOME}/.pixi/bin/pixi
 test-cram-multisv: ${HOME}/.pixi/bin/pixi
 	${HOME}/.pixi/bin/pixi run nextflow run main.nf \
 		--input assets/samplesheet_cram.csv \
-		--sv_caller "manta,delly" \
+		--structural_variant_caller "manta,delly" \
 		-profile docker,test \
 		--index_bwa2_reference false \
 		-resume
@@ -81,7 +81,7 @@ test-cram-multisv: ${HOME}/.pixi/bin/pixi
 test-cram-sv-manta: ${HOME}/.pixi/bin/pixi
 	${HOME}/.pixi/bin/pixi run nextflow run main.nf \
 		--input assets/samplesheet_cram.csv \
-		--sv_caller manta \
+		--structural_variant_caller manta \
 		--skip_variant_calling \
 		-profile docker,test_cram \
 		--index_bwa2_reference false \
@@ -90,7 +90,7 @@ test-cram-sv-manta: ${HOME}/.pixi/bin/pixi
 test-cram-sv-delly: ${HOME}/.pixi/bin/pixi
 	${HOME}/.pixi/bin/pixi run nextflow run main.nf \
 		--input assets/samplesheet_cram.csv \
-		--sv_caller delly \
+		--structural_variant_caller delly \
 		--skip_variant_calling \
 		-profile docker,test_cram \
 		--index_bwa2_reference false \
@@ -99,7 +99,7 @@ test-cram-sv-delly: ${HOME}/.pixi/bin/pixi
 test-cram-sv-tiddit: ${HOME}/.pixi/bin/pixi
 	${HOME}/.pixi/bin/pixi run nextflow run main.nf \
 		--input assets/samplesheet_cram.csv \
-		--sv_caller tiddit \
+		--structural_variant_caller tiddit \
 		--skip_variant_calling \
 		-profile docker,test_cram \
 		--index_bwa2_reference false \
@@ -108,7 +108,7 @@ test-cram-sv-tiddit: ${HOME}/.pixi/bin/pixi
 test-cram-sv-lumpy: ${HOME}/.pixi/bin/pixi
 	${HOME}/.pixi/bin/pixi run nextflow run main.nf \
 		--input assets/samplesheet_cram.csv \
-		--sv_caller lumpy \
+		--structural_variant_caller lumpy \
 		--skip_variant_calling \
 		-profile docker,test_cram \
 		--index_bwa2_reference false \
@@ -117,7 +117,7 @@ test-cram-sv-lumpy: ${HOME}/.pixi/bin/pixi
 test-cram-sv-cnvnator: ${HOME}/.pixi/bin/pixi
 	${HOME}/.pixi/bin/pixi run nextflow run main.nf \
 		--input assets/samplesheet_cram.csv \
-		--sv_caller cnvnator \
+		--structural_variant_caller cnvnator \
 		--skip_variant_calling \
 		-profile docker,test_cram \
 		--index_bwa2_reference false \
@@ -127,7 +127,7 @@ test-cram-sv-cnvnator: ${HOME}/.pixi/bin/pixi
 test-cram-sv-manta-delly: ${HOME}/.pixi/bin/pixi
 	${HOME}/.pixi/bin/pixi run nextflow run main.nf \
 		--input assets/samplesheet_cram.csv \
-		--sv_caller "manta,delly" \
+		--structural_variant_caller "manta,delly" \
 		--skip_variant_calling \
 		-profile docker,test_cram \
 		--index_bwa2_reference false \
@@ -136,7 +136,7 @@ test-cram-sv-manta-delly: ${HOME}/.pixi/bin/pixi
 test-cram-sv-manta-lumpy: ${HOME}/.pixi/bin/pixi
 	${HOME}/.pixi/bin/pixi run nextflow run main.nf \
 		--input assets/samplesheet_cram.csv \
-		--sv_caller "manta,lumpy" \
+		--structural_variant_caller "manta,lumpy" \
 		--skip_variant_calling \
 		-profile docker,test_cram \
 		--index_bwa2_reference false \
@@ -145,7 +145,7 @@ test-cram-sv-manta-lumpy: ${HOME}/.pixi/bin/pixi
 test-cram-sv-all: ${HOME}/.pixi/bin/pixi
 	${HOME}/.pixi/bin/pixi run nextflow run main.nf \
 		--input assets/samplesheet_cram.csv \
-		--sv_caller "manta,delly,tiddit,lumpy,cnvnator" \
+		--structural_variant_caller "manta,delly,tiddit,lumpy,cnvnator" \
 		--skip_variant_calling \
 		-profile docker,test_cram \
 		--index_bwa2_reference false \

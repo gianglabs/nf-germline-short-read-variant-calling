@@ -12,15 +12,9 @@ process SAMTOOLS_VIEW {
     tuple val(meta), path("${prefix}.bam.bai"), emit: bai
     path "versions.yml", emit: versions
 
-    when:
-    task.ext.when == null || task.ext.when
-
     script:
     def args = task.ext.args ?: ''
     prefix = task.ext.prefix ?: "${meta.id}"
-    
-    // Check if input is CRAM or BAM
-    def input_format = input_file.toString().endsWith('.cram') ? 'CRAM' : 'BAM'
 
     """
     # Convert CRAM to BAM with coordinate sorting and indexing
