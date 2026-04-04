@@ -1,0 +1,5 @@
+gatkspark/baserecalibrator:
+  - modules
+  - modules_gianglabs
+  - gatkspark
+  - gatkspark/baserecalibrator

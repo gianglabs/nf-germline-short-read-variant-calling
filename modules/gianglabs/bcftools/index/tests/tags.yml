@@ -1,0 +1,5 @@
+bcftools/index:
+  - modules
+  - modules_gianglabs
+  - bcftools
+  - bcftools/index

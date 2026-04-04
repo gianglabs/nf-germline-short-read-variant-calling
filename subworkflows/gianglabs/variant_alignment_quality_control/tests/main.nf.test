@@ -1,0 +1,44 @@
+nextflow_workflow {
+
+    name "Test Subworkflow VARIANT_ALIGNMENT_QUALITY_CONTROL"
+    script "../main.nf"
+    workflow "VARIANT_ALIGNMENT_QUALITY_CONTROL"
+
+    tag "subworkflows"
+    tag "subworkflows_gianglabs"
+    tag "variant_alignment_quality_control"
+    tag "variant_qc"
+
+    test("homo_sapiens - vcf - bam") {
+
+        when {
+            workflow {
+                """
+                input[0] = Channel.of([
+                    [ id: 'test', sample: 'test' ],
+                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/vcf/test_variants.vcf.gz', checkIfExists: true)
+                ])
+                input[1] = Channel.of([
+                    [ id: 'test', sample: 'test' ],
+                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/vcf/test_variants.vcf.gz.tbi', checkIfExists: true)
+                ])
+                input[2] = Channel.of([
+                    [ id: 'test', sample: 'test' ],
+                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/bam/processed.bam', checkIfExists: true)
+                ])
+                input[3] = Channel.of([
+                    [ id: 'test', sample: 'test' ],
+                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/bam/processed.bam.bai', checkIfExists: true)
+                ])
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert snapshot(workflow.out).match() }
+            )
+        }
+    }
+}

@@ -125,7 +125,7 @@ nextflow run main.nf \
 # With multiple SV callers
 nextflow run main.nf \
   --input samplesheet_cram.csv \
-  --sv_caller "manta,delly,lumpy" \
+  --structural_variant_caller "manta,delly,lumpy" \
   --profile docker \
   -resume
 
@@ -139,7 +139,7 @@ nextflow run main.nf \
 # Use alternative variant caller (GATK or FreeBayes)
 nextflow run main.nf \
   --input samplesheet.csv \
-  --variant_caller gatk \
+  --small_variant_caller gatk \
   --profile docker \
   -resume
 ```

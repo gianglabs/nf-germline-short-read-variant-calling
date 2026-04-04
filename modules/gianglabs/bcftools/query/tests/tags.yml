@@ -1,0 +1,5 @@
+bcftools/query:
+  - modules
+  - modules_gianglabs
+  - bcftools
+  - bcftools/query

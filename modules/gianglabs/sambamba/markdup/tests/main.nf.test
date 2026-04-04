@@ -1,0 +1,31 @@
+nextflow_process {
+
+    name "Test Process SAMBAMBA_MARKDUP"
+    script "../main.nf"
+    process "SAMBAMBA_MARKDUP"
+
+    tag "modules"
+    tag "modules_gianglabs"
+    tag "sambamba"
+    tag "sambamba/markdup"
+
+    test("homo_sapiens - bam") {
+
+        when {
+            process {
+                """
+                input[0] = Channel.of([
+                    [ id: 'test' ],
+                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/bam/processed.bam', checkIfExists: true)
+                ])
+                """
+            }
+        }
+
+        then {
+            assertAll (
+                { assert process.success }
+            )
+        }
+    }
+}

@@ -1,0 +1,57 @@
+name: bwa/mem2
+description: Align paired-end reads using BWA-MEM2
+keywords:
+  - alignment
+  - bwa
+  - bwa-mem2
+  - paired-end
+tools:
+  - bwamem2:
+      description: BWA-MEM2 is a fast and accurate aligner for long reads
+      homepage: https://github.com/bwa-mem2/bwa-mem2
+      documentation: https://github.com/bwa-mem2/bwa-mem2
+      tool_dev_url: https://github.com/bwa-mem2/bwa-mem2
+      licence: ["MIT"]
+
+input:
+  - meta:
+      type: map
+      description: |
+        Groovy Map containing sample information
+        e.g. [ id:'test', sample:'sample1', lane:'L001', read_group:'sample1_L001' ]
+  - reads:
+      type: file
+      description: Paired-end FASTQ files
+      pattern: "*.fastq.gz"
+  - reference:
+      type: file
+      description: Reference genome FASTA file
+      pattern: "*.{fasta,fa}"
+  - reference_fai:
+      type: file
+      description: Reference genome FASTA index file
+      pattern: "*.fai"
+  - reference_dict:
+      type: file
+      description: Reference genome dictionary file
+      pattern: "*.dict"
+  - bwa_index:
+      type: file
+      description: BWA-MEM2 index files
+      pattern: "*.{0123,amb,ann,bwt.2bit.64,pac}"
+
+output:
+  - meta:
+      type: map
+      description: Groovy Map containing sample information
+  - bam:
+      type: file
+      description: Aligned BAM file
+      pattern: "*.bam"
+  - versions:
+      type: file
+      description: File containing software versions
+      pattern: "versions.yml"
+
+authors:
+  - "@giangnguyen"

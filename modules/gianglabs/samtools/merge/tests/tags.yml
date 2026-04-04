@@ -1,0 +1,5 @@
+samtools/merge:
+  - modules
+  - modules_gianglabs
+  - samtools
+  - samtools/merge

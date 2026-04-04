@@ -1,0 +1,5 @@
+gatkspark/applybqsr:
+  - modules
+  - modules_gianglabs
+  - gatkspark
+  - gatkspark/applybqsr

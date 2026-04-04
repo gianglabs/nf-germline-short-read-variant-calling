@@ -1,0 +1,5 @@
+bwa/index:
+  - modules
+  - modules_gianglabs
+  - bwa
+  - bwa/index

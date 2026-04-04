@@ -16,12 +16,12 @@ include { DELLY } from '../../../../modules/local/delly/main'
 include { SMOOVE } from '../../../../modules/local/smoove/main'
 include { CNVNATOR } from '../../../../modules/local/cnvnator/main'
 include { SURVIVOR_MERGE } from '../../../../modules/local/survivor/main'
-include { SAMTOOLS_VIEW } from '../../../../modules/local/samtools/view/main'
-include { TABIX_INDEX_VCF } from '../../../../modules/local/bcftools/index/main'
+include { SAMTOOLS_VIEW } from '../../../../modules/gianglabs/samtools/view/main'
+include { TABIX_INDEX_VCF } from '../../../../modules/gianglabs/bcftools/index/main'
 
 workflow STRUCTURAL_VARIANT_CALLING {
     take:
-    sv_caller // value: SV calling tool (e.g. "manta", "tiddit", "delly", etc.)
+    structural_variant_caller // value: SV calling tool (e.g. "manta", "tiddit", "delly", etc.)
     bam // channel: [ val(meta), path(bam) ] or [ val(meta), path(cram) ]
     bai // channel: [ val(meta), path(bai) ] or [ val(meta), path(crai) ]
     ref_fasta // value: path(fasta)
@@ -48,7 +48,7 @@ workflow STRUCTURAL_VARIANT_CALLING {
     // Merge converted BAM with original BAM files
     bam_ready = bam_input.bam.join(bai).mix(SAMTOOLS_VIEW.out.bam.join(SAMTOOLS_VIEW.out.bai))
 
-    if (sv_caller.split(",").contains("manta")) {
+    if (structural_variant_caller.split(",").contains("manta")) {
         MANTA(
             bam_ready,
             ref_fasta,
@@ -57,7 +57,7 @@ workflow STRUCTURAL_VARIANT_CALLING {
         ch_versions = ch_versions.mix(MANTA.out.versions)
         ch_out_vcf = ch_out_vcf.mix(MANTA.out.vcf)
     }
-    if (sv_caller.split(",").contains("tiddit")) {
+    if (structural_variant_caller.split(",").contains("tiddit")) {
         TIDDIT(
             bam_ready,
             ref_fasta,
@@ -66,7 +66,7 @@ workflow STRUCTURAL_VARIANT_CALLING {
         ch_versions = ch_versions.mix(TIDDIT.out.versions)
         ch_out_vcf = ch_out_vcf.mix(TIDDIT.out.vcf)
     }
-    if (sv_caller.split(",").contains("delly")) {
+    if (structural_variant_caller.split(",").contains("delly")) {
         DELLY(
             bam_ready,
             ref_fasta,
@@ -75,7 +75,7 @@ workflow STRUCTURAL_VARIANT_CALLING {
         ch_versions = ch_versions.mix(DELLY.out.versions)
         ch_out_vcf = ch_out_vcf.mix(DELLY.out.vcf)
     }
-    if (sv_caller.split(",").contains("smoove")) {
+    if (structural_variant_caller.split(",").contains("smoove")) {
         SMOOVE(
             bam_ready,
             ref_fasta,
@@ -84,7 +84,7 @@ workflow STRUCTURAL_VARIANT_CALLING {
         ch_versions = ch_versions.mix(SMOOVE.out.versions)
         ch_out_vcf = ch_out_vcf.mix(SMOOVE.out.vcf)
     }
-    if (sv_caller.split(",").contains("cnvnator")) {
+    if (structural_variant_caller.split(",").contains("cnvnator")) {
         CNVNATOR(
             bam_ready,
             ref_fasta,
@@ -95,8 +95,8 @@ workflow STRUCTURAL_VARIANT_CALLING {
 
         ch_out_vcf = ch_out_vcf.mix(CNVNATOR.out.vcf)
     }
-    if (!sv_caller.split(",").any { it.trim() in ["manta", "tiddit", "delly", "smoove", "cnvnator"] }) {
-        error("Unsupported SV caller: ${sv_caller}. Supported callers: manta, tiddit, delly, smoove, cnvnator")
+    if (!structural_variant_caller.split(",").any { it.trim() in ["manta", "tiddit", "delly", "smoove", "cnvnator"] }) {
+        error("Unsupported SV caller: ${structural_variant_caller}. Supported callers: manta, tiddit, delly, smoove, cnvnator")
     }
 
     // Group VCF files by sample ID for merge

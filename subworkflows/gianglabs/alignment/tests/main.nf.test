@@ -1,0 +1,38 @@
+nextflow_workflow {
+
+    name "Test Subworkflow ALIGNMENT"
+    script "../main.nf"
+    workflow "ALIGNMENT"
+
+    tag "subworkflows"
+    tag "subworkflows_gianglabs"
+    tag "alignment"
+
+    test("homo_sapiens - paired_end - fastq") {
+
+        when {
+            workflow {
+                """
+                input[0] = Channel.of([
+                    [ id: 'test', sample: 'test', lane: 'L001', read_group: 'test_L001' ],
+                    [
+                        file(params.modules_testdata_base_path + 'genomics/homo_sapiens/fastq/HG002_subset_R1.fastq.gz', checkIfExists: true),
+                        file(params.modules_testdata_base_path + 'genomics/homo_sapiens/fastq/HG002_subset_R2.fastq.gz', checkIfExists: true)
+                    ]
+                ])
+                input[1] = file(params.modules_testdata_base_path + 'genomics/homo_sapiens/reference/chr22.fasta', checkIfExists: true)
+                input[2] = file(params.modules_testdata_base_path + 'genomics/homo_sapiens/reference/chr22.fasta.fai', checkIfExists: true)
+                input[3] = file(params.modules_testdata_base_path + 'genomics/homo_sapiens/reference/chr22.dict', checkIfExists: true)
+                input[4] = []
+                input[5] = true
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success }
+            )
+        }
+    }
+}

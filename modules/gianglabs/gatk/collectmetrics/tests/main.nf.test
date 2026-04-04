@@ -1,0 +1,36 @@
+nextflow_process {
+
+    name "Test Process GATK_COLLECTMETRICS"
+    script "../main.nf"
+    process "GATK_COLLECTMETRICS"
+
+    tag "modules"
+    tag "modules_gianglabs"
+    tag "gatk"
+    tag "gatk/collectmetrics"
+
+    test("homo_sapiens - bam stub") {
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = Channel.of([
+                    [ id: 'test' ],
+                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/bam/processed.bam', checkIfExists: true),
+                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/bam/processed.bam.bai', checkIfExists: true)
+                ])
+                input[1] = Channel.of(file(params.modules_testdata_base_path + 'genomics/homo_sapiens/reference/chr22.fasta', checkIfExists: true))
+                input[2] = Channel.of(file(params.modules_testdata_base_path + 'genomics/homo_sapiens/reference/chr22.fasta.fai', checkIfExists: true))
+                input[3] = Channel.of(file(params.modules_testdata_base_path + 'genomics/homo_sapiens/reference/chr22.dict', checkIfExists: true))
+                """
+            }
+        }
+
+        then {
+            assertAll (
+                { assert process.success }
+            )
+        }
+    }
+}

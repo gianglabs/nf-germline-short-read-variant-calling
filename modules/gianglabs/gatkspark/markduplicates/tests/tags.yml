@@ -1,0 +1,5 @@
+gatkspark/markduplicates:
+  - modules
+  - modules_gianglabs
+  - gatkspark
+  - gatkspark/markduplicates

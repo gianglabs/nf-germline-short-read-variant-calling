@@ -1,0 +1,5 @@
+snpeff/anno:
+  - modules
+  - modules_gianglabs
+  - snpeff
+  - snpeff/anno
