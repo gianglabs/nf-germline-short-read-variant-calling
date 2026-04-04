@@ -1,0 +1,5 @@
+gatk/collectmetrics:
+  - modules
+  - modules_gianglabs
+  - gatk
+  - gatk/collectmetrics

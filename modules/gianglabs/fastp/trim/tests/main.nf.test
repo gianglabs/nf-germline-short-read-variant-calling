@@ -1,0 +1,34 @@
+nextflow_process {
+
+    name "Test Process FASTP_TRIM"
+    script "../main.nf"
+    process "FASTP_TRIM"
+
+    tag "modules"
+    tag "modules_gianglabs"
+    tag "fastp"
+    tag "fastp/trim"
+
+    test("homo_sapiens - paired_end [fastq]") {
+
+        when {
+            process {
+                """
+                input[0] = Channel.of([
+                    [ id: 'test', read_group: 'test_L001', single_end: false ],
+                    [
+                        file(params.modules_testdata_base_path + 'genomics/homo_sapiens/fastq/HG002_subset_R1.fastq.gz', checkIfExists: true),
+                        file(params.modules_testdata_base_path + 'genomics/homo_sapiens/fastq/HG002_subset_R2.fastq.gz', checkIfExists: true)
+                    ]
+                ])
+                """
+            }
+        }
+
+        then {
+            assertAll (
+                { assert process.success }
+            )
+        }
+    }
+}

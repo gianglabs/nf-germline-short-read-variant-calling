@@ -1,0 +1,37 @@
+{
+    "homo_sapiens - fasta": {
+        "content": [
+            {
+                "0": [
+                    [
+                        "chr22.fasta.0123:md5,8fa3abf34200ccbbdd8536f9cefed95d",
+                        "chr22.fasta.amb:md5,264db5d0d4d1017d209c20e98d41d2e2",
+                        "chr22.fasta.ann:md5,9891c001c334b01fbd835340997e37be",
+                        "chr22.fasta.bwt.2bit.64:md5,fa64d6b80c9ad135477ab75fe7c44413",
+                        "chr22.fasta.pac:md5,a1bd3051e7e86e022fe732609e1e7c4f"
+                    ]
+                ],
+                "1": [
+                    "versions.yml:md5,9ffd13d12e7108ed15c58566bc4717d6"
+                ],
+                "index": [
+                    [
+                        "chr22.fasta.0123:md5,8fa3abf34200ccbbdd8536f9cefed95d",
+                        "chr22.fasta.amb:md5,264db5d0d4d1017d209c20e98d41d2e2",
+                        "chr22.fasta.ann:md5,9891c001c334b01fbd835340997e37be",
+                        "chr22.fasta.bwt.2bit.64:md5,fa64d6b80c9ad135477ab75fe7c44413",
+                        "chr22.fasta.pac:md5,a1bd3051e7e86e022fe732609e1e7c4f"
+                    ]
+                ],
+                "versions": [
+                    "versions.yml:md5,9ffd13d12e7108ed15c58566bc4717d6"
+                ]
+            }
+        ],
+        "timestamp": "2026-04-03T14:34:09.041856923",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "25.10.4"
+        }
+    }
+}

@@ -1,0 +1,5 @@
+alignment_preprocessing:
+  - subworkflows
+  - subworkflows_gianglabs
+  - alignment_preprocessing
+  - preprocessing

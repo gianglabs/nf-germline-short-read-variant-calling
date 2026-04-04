@@ -1,0 +1,35 @@
+{
+    "homo_sapiens - bam": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test_coverage.bedgraph:md5,f1e88a884635a85966dfd15fcb137273"
+                    ]
+                ],
+                "1": [
+                    "versions.yml:md5,6c8465bf1854d50c88d5dc9b51a53cd5"
+                ],
+                "bedgraph": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test_coverage.bedgraph:md5,f1e88a884635a85966dfd15fcb137273"
+                    ]
+                ],
+                "versions": [
+                    "versions.yml:md5,6c8465bf1854d50c88d5dc9b51a53cd5"
+                ]
+            }
+        ],
+        "timestamp": "2026-04-03T14:41:09.73434703",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "25.10.4"
+        }
+    }
+}

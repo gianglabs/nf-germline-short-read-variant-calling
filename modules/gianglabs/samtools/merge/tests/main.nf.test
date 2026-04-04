@@ -1,0 +1,32 @@
+nextflow_process {
+
+    name "Test Process SAMTOOLS_MERGE"
+    script "../main.nf"
+    process "SAMTOOLS_MERGE"
+
+    tag "modules"
+    tag "modules_gianglabs"
+    tag "samtools"
+    tag "samtools/merge"
+
+    test("homo_sapiens - bam merge single") {
+
+        when {
+            process {
+                """
+                input[0] = Channel.of([
+                    [ id: 'test' ],
+                    [ file(params.modules_testdata_base_path + 'genomics/homo_sapiens/bam/processed.bam', checkIfExists: true) ]
+                ])
+                input[1] = Channel.of(file(params.modules_testdata_base_path + 'genomics/homo_sapiens/reference/chr22.fasta', checkIfExists: true))
+                """
+            }
+        }
+
+        then {
+            assertAll (
+                { assert process.success }
+            )
+        }
+    }
+}

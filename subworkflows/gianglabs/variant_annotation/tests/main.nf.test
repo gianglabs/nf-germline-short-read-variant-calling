@@ -1,0 +1,40 @@
+nextflow_workflow {
+
+    name "Test Subworkflow VARIANT_ANNOTATION"
+    script "../main.nf"
+    workflow "VARIANT_ANNOTATION"
+
+    tag "subworkflows"
+    tag "subworkflows_gianglabs"
+    tag "variant_annotation"
+
+    test("homo_sapiens - vcf - annotation") {
+
+        when {
+            workflow {
+                """
+                input[0] = Channel.of([
+                    [ id: 'test', sample: 'test' ],
+                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/vcf/test_variants.vcf.gz', checkIfExists: true)
+                ])
+                input[1] = Channel.of([
+                    [ id: 'test', sample: 'test' ],
+                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/vcf/test_variants.vcf.gz.tbi', checkIfExists: true)
+                ])
+                input[2] = 's3://annotation-cache/snpeff_cache/GRCh38.99'
+                input[3] = 's3://annotation-cache/vep_cache/115_GRCh38/homo_sapiens/115_GRCh38/22'
+                input[4] = '115'
+                input[5] = 'GRCh38'
+                input[6] = 'homo_sapiens'
+                input[7] = file(params.modules_testdata_base_path + 'genomics/homo_sapiens/reference/chr22.fasta', checkIfExists: true)
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success }
+            )
+        }
+    }
+}

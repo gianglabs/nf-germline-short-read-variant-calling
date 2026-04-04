@@ -17,7 +17,24 @@
                 "variant_alignment_qc",
                 "variant_alignment_qc/sample1",
                 "variant_alignment_qc/sample1/sample1_coverage.bedgraph",
-                "variant_alignment_qc/sample1/versions.yml"
+                "variant_alignment_qc/sample1/sample1_indel_count.txt",
+                "variant_alignment_qc/sample1/sample1_snp_count.txt",
+                "variant_alignment_qc/sample1/sample1_variant_stats.txt",
+                "variant_alignment_qc/sample1/sample1_variants.bed",
+                "variant_alignment_qc/sample1/versions.yml",
+                "variant_calling",
+                "variant_calling/small",
+                "variant_calling/small/sample1",
+                "variant_calling/small/sample1/sample1.g.vcf.gz",
+                "variant_calling/small/sample1/sample1.g.vcf.gz.tbi",
+                "variant_calling/small/sample1/sample1.vcf.gz",
+                "variant_calling/small/sample1/sample1.vcf.gz.tbi",
+                "variant_calling/small/sample1/versions.yml",
+                "variant_calling/structural",
+                "variant_calling/structural/sample1",
+                "variant_calling/structural/sample1/sample1.manta.vcf.gz.sorted.vcf.gz",
+                "variant_calling/structural/sample1/sample1.manta.vcf.gz.sorted.vcf.gz.tbi",
+                "variant_calling/structural/sample1/versions.yml"
             ],
             [
                 "chr22.fasta.0123:md5,8fa3abf34200ccbbdd8536f9cefed95d",
@@ -25,10 +42,14 @@
                 "chr22.fasta.ann:md5,9891c001c334b01fbd835340997e37be",
                 "chr22.fasta.bwt.2bit.64:md5,fa64d6b80c9ad135477ab75fe7c44413",
                 "chr22.fasta.pac:md5,a1bd3051e7e86e022fe732609e1e7c4f",
-                "sample1_coverage.bedgraph:md5,f1e88a884635a85966dfd15fcb137273"
+                "sample1_coverage.bedgraph:md5,f1e88a884635a85966dfd15fcb137273",
+                "sample1_indel_count.txt:md5,f760ff3894d8b6c7583306926bf4b37f",
+                "sample1_snp_count.txt:md5,bdfe320f3fb11b6f0dcb4d5a27e3b82c",
+                "sample1_variant_stats.txt:md5,d845db6c67b16a82ce7cf5eb344ed035",
+                "sample1_variants.bed:md5,45af47590426fc2d85d5c20e25abb8fe"
             ]
         ],
-        "timestamp": "2026-03-25T21:07:20.484101153",
+        "timestamp": "2026-04-04T15:39:10.679333194",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "25.10.4"

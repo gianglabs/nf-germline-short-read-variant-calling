@@ -1,0 +1,67 @@
+{
+    "homo_sapiens - vcf": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test_variant_stats.txt:md5,da0619b5c4fcac70f15b905783d24e6d"
+                    ]
+                ],
+                "1": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test_snp_count.txt:md5,897316929176464ebc9ad085f31e7284"
+                    ]
+                ],
+                "2": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test_indel_count.txt:md5,897316929176464ebc9ad085f31e7284"
+                    ]
+                ],
+                "3": [
+                    "versions.yml:md5,88eb0c9be36cbf28fc1ed988e8e98779"
+                ],
+                "indel_count": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test_indel_count.txt:md5,897316929176464ebc9ad085f31e7284"
+                    ]
+                ],
+                "snp_count": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test_snp_count.txt:md5,897316929176464ebc9ad085f31e7284"
+                    ]
+                ],
+                "stats": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test_variant_stats.txt:md5,da0619b5c4fcac70f15b905783d24e6d"
+                    ]
+                ],
+                "versions": [
+                    "versions.yml:md5,88eb0c9be36cbf28fc1ed988e8e98779"
+                ]
+            }
+        ],
+        "timestamp": "2026-04-03T14:39:42.589684597",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "25.10.4"
+        }
+    }
+}

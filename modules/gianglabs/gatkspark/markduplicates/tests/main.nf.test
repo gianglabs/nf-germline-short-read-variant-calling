@@ -1,0 +1,33 @@
+nextflow_process {
+
+    name "Test Process GATKSPARK_MARKDUPLICATES"
+    script "../main.nf"
+    process "GATKSPARK_MARKDUPLICATES"
+
+    tag "modules"
+    tag "modules_gianglabs"
+    tag "gatkspark"
+    tag "gatkspark/markduplicates"
+
+    test("homo_sapiens - bam stub") {
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = Channel.of([
+                    [ id: 'test' ],
+                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/bam/processed.bam', checkIfExists: true)
+                ])
+                """
+            }
+        }
+
+        then {
+            assertAll (
+                { assert process.success },
+                { assert snapshot(process.out).match() }
+            )
+        }
+    }
+}

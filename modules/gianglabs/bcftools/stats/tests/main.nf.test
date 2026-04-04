@@ -1,0 +1,33 @@
+nextflow_process {
+
+    name "Test Process BCFTOOLS_STATS"
+    script "../main.nf"
+    process "BCFTOOLS_STATS"
+
+    tag "modules"
+    tag "modules_gianglabs"
+    tag "bcftools"
+    tag "bcftools/stats"
+
+    test("homo_sapiens - vcf") {
+
+        when {
+            process {
+                """
+                input[0] = Channel.of([
+                    [ id: 'test' ],
+                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/vcf/test_variants.vcf.gz', checkIfExists: true),
+                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/vcf/test_variants.vcf.gz.tbi', checkIfExists: true)
+                ])
+                """
+            }
+        }
+
+        then {
+            assertAll (
+                { assert process.success },
+                { assert snapshot(process.out).match() }
+            )
+        }
+    }
+}

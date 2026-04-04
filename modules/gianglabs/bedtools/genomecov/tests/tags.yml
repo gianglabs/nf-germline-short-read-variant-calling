@@ -1,0 +1,5 @@
+bedtools/genomecov:
+  - modules
+  - modules_gianglabs
+  - bedtools
+  - bedtools/genomecov

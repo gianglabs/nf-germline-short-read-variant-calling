@@ -1,19 +1,19 @@
 // Include subworkflows
-include { ALIGNMENT } from '../subworkflows/local/alignment/main'
-include { PREPROCESSING } from '../subworkflows/local/alignment_preprocessing/main'
+include { ALIGNMENT } from '../subworkflows/gianglabs/alignment/main'
+include { PREPROCESSING } from '../subworkflows/gianglabs/alignment_preprocessing/main'
 
 // Variant calling
 include { SMALL_VARIANT_CALLING } from '../subworkflows/local/variant_calling/small/main'
 include { STRUCTURAL_VARIANT_CALLING } from '../subworkflows/local/variant_calling/structural/main'
 
 // Variant annotation
-include { VARIANT_ANNOTATION } from '../subworkflows/local/variant_annotation/main'
+include { VARIANT_ANNOTATION } from '../subworkflows/gianglabs/variant_annotation/main'
 
 // QC
-include { VARIANT_ALIGNMENT_QUALITY_CONTROL } from '../subworkflows/local/variant_alignment_quality_control/main'
+include { VARIANT_ALIGNMENT_QUALITY_CONTROL } from '../subworkflows/gianglabs/variant_alignment_quality_control/main'
 
 // Include modules for CRAM conversion
-include { SAMTOOLS_VIEW } from '../modules/local/samtools/view/main'
+include { SAMTOOLS_VIEW } from '../modules/gianglabs/samtools/view/main'
 
 /*
 ========================================================================================
@@ -82,15 +82,16 @@ workflow GERMLINE_VARIANT_CALLING {
     ==============================================================================================================================
     nf-germline-short-read-variant-calling:
      - Nextflow Version
-     - Workflow: GATK_VARIANT_CALLING
-     - Subworkflows: PREPROCESSING, VARIANT_CALLING, ANNOTATION
-     - Loaded genomes set: ${params.genome ? params.genome : 'None'}
-     - Reference Genome: ${params.reference}
-     - dbSNP VCF: ${params.dbsnp}
-     - Known Indels VCF: ${params.known_indels}
-     - Input Samplesheet: ${params.input}
-     - Output Directory: ${params.outdir}
-     - SV Caller: ${params.sv_caller ? params.sv_caller : 'None'}
+     - Workflow                  : GATK_VARIANT_CALLING
+     - Subworkflows              : PREPROCESSING, VARIANT_CALLING, ANNOTATION
+     - Small Variant Caller      : ${params.small_variant_caller ? params.small_variant_caller : 'None'}
+     - Structural Variant Caller : ${params.structural_variant_caller ? params.structural_variant_caller : 'None'}
+     - Loaded genomes set        : ${params.genome ? params.genome : 'None'}
+     - Reference Genome          : ${params.reference}
+     - dbSNP VCF                 : ${params.dbsnp}
+     - Known Indels VCF          : ${params.known_indels}
+     - Input Samplesheet         : ${params.input}
+     - Output Directory          : ${params.outdir}
     ==============================================================================================================================
     """.stripIndent()
     )

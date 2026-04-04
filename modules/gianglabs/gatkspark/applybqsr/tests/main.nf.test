@@ -1,0 +1,37 @@
+nextflow_process {
+
+    name "Test Process GATKSPARK_APPLYBQSR"
+    script "../main.nf"
+    process "GATKSPARK_APPLYBQSR"
+
+    tag "modules"
+    tag "modules_gianglabs"
+    tag "gatkspark"
+    tag "gatkspark/applybqsr"
+
+    test("homo_sapiens - bam stub") {
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = Channel.of([
+                    [ id: 'test' ],
+                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/bam/processed.bam', checkIfExists: true),
+                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/bam/processed.bam.bai', checkIfExists: true),
+                    file('recal.table')
+                ])
+                input[1] = Channel.of(file(params.modules_testdata_base_path + 'genomics/homo_sapiens/reference/chr22.fasta', checkIfExists: true))
+                input[2] = Channel.of(file(params.modules_testdata_base_path + 'genomics/homo_sapiens/reference/chr22.fasta.fai', checkIfExists: true))
+                input[3] = Channel.of(file(params.modules_testdata_base_path + 'genomics/homo_sapiens/reference/chr22.dict', checkIfExists: true))
+                """
+            }
+        }
+
+        then {
+            assertAll (
+                { assert process.success }
+            )
+        }
+    }
+}

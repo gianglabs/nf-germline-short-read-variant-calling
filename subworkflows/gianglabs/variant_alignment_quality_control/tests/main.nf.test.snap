@@ -1,0 +1,77 @@
+{
+    "homo_sapiens - vcf - bam": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "test",
+                            "sample": "test"
+                        },
+                        "test_variant_stats.txt:md5,da0619b5c4fcac70f15b905783d24e6d"
+                    ]
+                ],
+                "1": [
+                    [
+                        {
+                            "id": "test",
+                            "sample": "test"
+                        },
+                        "test_variants.bed:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "2": [
+                    [
+                        {
+                            "id": "test",
+                            "sample": "test"
+                        },
+                        "test_coverage.bedgraph:md5,f1e88a884635a85966dfd15fcb137273"
+                    ]
+                ],
+                "3": [
+                    "versions.yml:md5,9b3ce1718f81567403b7ab02b0f31dee",
+                    "versions.yml:md5,da1ad9817d1d71e8940d6faa623ed61b",
+                    "versions.yml:md5,eaa78d345630ef1ebc1d5fde1a8b8c55"
+                ],
+                "bed": [
+                    [
+                        {
+                            "id": "test",
+                            "sample": "test"
+                        },
+                        "test_variants.bed:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "bedgraph": [
+                    [
+                        {
+                            "id": "test",
+                            "sample": "test"
+                        },
+                        "test_coverage.bedgraph:md5,f1e88a884635a85966dfd15fcb137273"
+                    ]
+                ],
+                "stats": [
+                    [
+                        {
+                            "id": "test",
+                            "sample": "test"
+                        },
+                        "test_variant_stats.txt:md5,da0619b5c4fcac70f15b905783d24e6d"
+                    ]
+                ],
+                "versions": [
+                    "versions.yml:md5,9b3ce1718f81567403b7ab02b0f31dee",
+                    "versions.yml:md5,da1ad9817d1d71e8940d6faa623ed61b",
+                    "versions.yml:md5,eaa78d345630ef1ebc1d5fde1a8b8c55"
+                ]
+            }
+        ],
+        "timestamp": "2026-04-03T02:03:48.834496918",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "25.10.4"
+        }
+    }
+}

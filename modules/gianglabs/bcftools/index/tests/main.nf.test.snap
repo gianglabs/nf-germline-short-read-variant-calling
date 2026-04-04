@@ -1,0 +1,51 @@
+{
+    "homo_sapiens - vcf": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test_variants.vcf.gz.sorted.vcf.gz:md5,3d500fab5fb305253a9cc0a8333132df"
+                    ]
+                ],
+                "1": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test_variants.vcf.gz.sorted.vcf.gz.tbi:md5,4cb176febbc8c26d717a6c6e67b9c905"
+                    ]
+                ],
+                "2": [
+                    "versions.yml:md5,c356c6958d1d45ad4f6b226e57cc2886"
+                ],
+                "vcf": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test_variants.vcf.gz.sorted.vcf.gz:md5,3d500fab5fb305253a9cc0a8333132df"
+                    ]
+                ],
+                "vcf_tbi": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test_variants.vcf.gz.sorted.vcf.gz.tbi:md5,4cb176febbc8c26d717a6c6e67b9c905"
+                    ]
+                ],
+                "versions": [
+                    "versions.yml:md5,c356c6958d1d45ad4f6b226e57cc2886"
+                ]
+            }
+        ],
+        "timestamp": "2026-04-03T14:39:16.672677657",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "25.10.4"
+        }
+    }
+}

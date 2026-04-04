@@ -1,0 +1,5 @@
+samtools/view:
+  - modules
+  - modules_gianglabs
+  - samtools
+  - samtools/view

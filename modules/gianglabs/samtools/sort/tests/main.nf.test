@@ -1,0 +1,31 @@
+nextflow_process {
+
+    name "Test Process SAMTOOLS_SORT"
+    script "../main.nf"
+    process "SAMTOOLS_SORT"
+
+    tag "modules"
+    tag "modules_gianglabs"
+    tag "samtools"
+    tag "samtools/sort"
+
+    test("homo_sapiens - bam") {
+
+        when {
+            process {
+                """
+                input[0] = Channel.of([
+                    [ id: 'test' ],
+                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/bam/processed.bam', checkIfExists: true)
+                ])
+                """
+            }
+        }
+
+        then {
+            assertAll (
+                { assert process.success }
+            )
+        }
+    }
+}

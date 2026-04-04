@@ -1,0 +1,3 @@
+tags:
+  subworkflows:
+    - "subworkflows_gianglabs/variant_annotation"

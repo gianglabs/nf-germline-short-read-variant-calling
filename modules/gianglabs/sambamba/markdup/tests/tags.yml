@@ -1,0 +1,5 @@
+sambamba/markdup:
+  - modules
+  - modules_gianglabs
+  - sambamba
+  - sambamba/markdup

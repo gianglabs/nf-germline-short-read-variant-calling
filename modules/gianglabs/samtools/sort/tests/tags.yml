@@ -1,0 +1,5 @@
+samtools/sort:
+  - modules
+  - modules_gianglabs
+  - samtools
+  - samtools/sort

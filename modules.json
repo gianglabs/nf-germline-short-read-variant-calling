@@ -1,0 +1,126 @@
+{
+  "name": "gianglabs/nf-germline-short-read-variant-calling",
+  "homePage": "https://github.com/gianglabs/nf-germline-short-read-variant-calling",
+  "repos": {
+    "https://github.com/gianglabs/nf-modules.git": {
+      "modules": {
+        "gianglabs": {
+          "bcftools/index": {
+            "branch": "main",
+            "git_sha": "cedd20f5289c94ad092f067c16090efe66d42261",
+            "installed_by": ["modules"]
+          },
+          "bcftools/norm": {
+            "branch": "main",
+            "git_sha": "2497a427ba0127a6148b8c115ed93d9e3c302fb9",
+            "installed_by": ["variant_annotation"]
+          },
+          "bcftools/query": {
+            "branch": "main",
+            "git_sha": "a41050d7732c59a95414299623210d0660500278",
+            "installed_by": ["variant_alignment_quality_control"]
+          },
+          "bcftools/stats": {
+            "branch": "main",
+            "git_sha": "a41050d7732c59a95414299623210d0660500278",
+            "installed_by": ["variant_alignment_quality_control"]
+          },
+          "bedtools/genomecov": {
+            "branch": "main",
+            "git_sha": "5745448939f2e37acab7a8481b46c5754cc864ca",
+            "installed_by": ["variant_alignment_quality_control"]
+          },
+          "bwamem2/index": {
+            "branch": "main",
+            "git_sha": "23c80640acd80e9695f18182fadb947a2605c2da",
+            "installed_by": ["alignment"]
+          },
+          "bwamem2/mem2": {
+            "branch": "main",
+            "git_sha": "23c80640acd80e9695f18182fadb947a2605c2da",
+            "installed_by": ["alignment"]
+          },
+          "fastp/trim": {
+            "branch": "main",
+            "git_sha": "2cefc6b6bde56d1548d341f44194456a0b994018",
+            "installed_by": ["alignment"]
+          },
+          "gatk/collectmetrics": {
+            "branch": "main",
+            "git_sha": "5745448939f2e37acab7a8481b46c5754cc864ca",
+            "installed_by": ["alignment_preprocessing"]
+          },
+          "gatkspark/applybqsr": {
+            "branch": "main",
+            "git_sha": "5745448939f2e37acab7a8481b46c5754cc864ca",
+            "installed_by": ["alignment_preprocessing"]
+          },
+          "gatkspark/baserecalibrator": {
+            "branch": "main",
+            "git_sha": "5745448939f2e37acab7a8481b46c5754cc864ca",
+            "installed_by": ["alignment_preprocessing"]
+          },
+          "gatkspark/markduplicates": {
+            "branch": "main",
+            "git_sha": "5745448939f2e37acab7a8481b46c5754cc864ca",
+            "installed_by": ["alignment_preprocessing"]
+          },
+          "sambamba/markdup": {
+            "branch": "main",
+            "git_sha": "5745448939f2e37acab7a8481b46c5754cc864ca",
+            "installed_by": ["alignment_preprocessing"]
+          },
+          "samtools/merge": {
+            "branch": "main",
+            "git_sha": "5745448939f2e37acab7a8481b46c5754cc864ca",
+            "installed_by": ["alignment"]
+          },
+          "samtools/sort": {
+            "branch": "main",
+            "git_sha": "5745448939f2e37acab7a8481b46c5754cc864ca",
+            "installed_by": ["alignment"]
+          },
+          "samtools/view": {
+            "branch": "main",
+            "git_sha": "2497a427ba0127a6148b8c115ed93d9e3c302fb9",
+            "installed_by": ["modules"]
+          },
+          "snpeff/annotate": {
+            "branch": "main",
+            "git_sha": "1c23b3262cc04756d242baeaafcfe2dac1610422",
+            "installed_by": ["variant_annotation"]
+          },
+          "vep/annotate": {
+            "branch": "main",
+            "git_sha": "1c23b3262cc04756d242baeaafcfe2dac1610422",
+            "installed_by": ["variant_annotation"]
+          }
+        }
+      },
+      "subworkflows": {
+        "gianglabs": {
+          "alignment": {
+            "branch": "main",
+            "git_sha": "a12d78f3988485c81b17aad314cc3c5a06ce0fbe",
+            "installed_by": ["subworkflows"]
+          },
+          "alignment_preprocessing": {
+            "branch": "main",
+            "git_sha": "dc2503b6e335063d68d19abe81305fbaf68bd141",
+            "installed_by": ["subworkflows"]
+          },
+          "variant_alignment_quality_control": {
+            "branch": "main",
+            "git_sha": "d3f2ca1cadadfba67f3b0a33832c05cb95fea868",
+            "installed_by": ["subworkflows"]
+          },
+          "variant_annotation": {
+            "branch": "main",
+            "git_sha": "dd5eb4ba66439009cca8d90436b3504ca91fe959",
+            "installed_by": ["subworkflows"]
+          }
+        }
+      }
+    }
+  }
+}

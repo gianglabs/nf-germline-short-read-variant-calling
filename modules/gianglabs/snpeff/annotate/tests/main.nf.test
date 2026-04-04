@@ -1,0 +1,33 @@
+nextflow_process {
+
+    name "Test Process SNPEFF"
+    script "../main.nf"
+    process "SNPEFF_ANNOTATE"
+
+    tag "modules"
+    tag "modules_gianglabs"
+    tag "snpeff"
+
+    test("homo_sapiens - vcf stub") {
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = Channel.of([
+                    [ id: 'test' ],
+                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/vcf/test_variants.vcf.gz', checkIfExists: true),
+                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/vcf/test_variants.vcf.gz.tbi', checkIfExists: true)
+                ])
+                input[1] = Channel.of(file(params.modules_testdata_base_path + 'genomics/homo_sapiens/caches/snpeff_hg38', checkIfExists: true))
+                """
+            }
+        }
+
+        then {
+            assertAll (
+                { assert process.success }
+            )
+        }
+    }
+}
