@@ -1,4 +1,4 @@
-# Nextflow Germline Short Reads Variant Calling
+# Nextflow Germline Short-Read Variant Calling
 
 This repository implements a comprehensive Nextflow pipeline for germline short-read variant calling, supporting multiple variant callers (DeepVariant, GATK HaplotypeCaller, FreeBayes) with integrated quality control and annotation.
 
