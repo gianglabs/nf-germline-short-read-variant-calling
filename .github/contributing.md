@@ -16,6 +16,7 @@ If you'd like to contribute code, please follow this workflow:
 2. **Fork the repository** - [Fork](https://help.github.com/en/github/getting-started-with-github/fork-a-repo) the repository to your GitHub account.
 
 3. **Create a feature branch** - Create a branch from `main` for your changes:
+
    ```bash
    git checkout -b feature/my-feature
    # or for bug fixes:
@@ -29,6 +30,7 @@ If you'd like to contribute code, please follow this workflow:
 6. **Update documentation** - Add or update relevant documentation if needed.
 
 7. **Commit and push** - Use clear, descriptive commit messages:
+
    ```bash
    git add .
    git commit -m "feat: add new variant caller support" # or "fix:", "docs:", etc.
@@ -47,7 +49,7 @@ Test your changes locally before submitting a pull request:
 
 ```bash
 # Run all tests with debug output
-nf-test test --profile debug,test,docker --verbose
+nf-test test --profile test_fastq,docker --verbose
 
 # Run a specific test
 nf-test test tests/workflows/main.nf.test --profile test,docker
@@ -58,6 +60,7 @@ nf-test test tests/workflows/main.nf.test --profile test,docker
 When you create a pull request, GitHub Actions will automatically run tests. Pull requests are typically reviewed when these tests pass, but we can help fix issues before then.
 
 Tests verify:
+
 - **Code linting** - nf-core standards compliance
 - **Workflow execution** - Pipeline runs successfully with test data
 - **Output validation** - Generated outputs meet expected format
@@ -86,6 +89,7 @@ To maintain code quality and readability, please follow these standards when con
 - Add help text in `nextflow_schema.json` describing what the parameter does
 
 Example:
+
 ```groovy
 // In nextflow.config
 params {
@@ -124,7 +128,7 @@ process {
 // In your process
 process MY_PROCESS {
     label 'process_medium'
-    
+
     script:
     """
     my_tool --threads ${task.cpus} --memory ${task.memory.toMega()}M input.txt
@@ -158,15 +162,16 @@ ch_final_annotated_vcf
 - Use descriptive variable names
 
 Example:
+
 ```groovy
 process ALIGN_READS {
     input:
     tuple val(sample_id), file(fastq_r1), file(fastq_r2)
     file reference_genome
-    
+
     output:
     tuple val(sample_id), file("${sample_id}.bam")
-    
+
     script:
     """
     bwa mem -t ${task.cpus} \\

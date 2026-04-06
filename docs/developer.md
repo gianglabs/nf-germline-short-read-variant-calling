@@ -17,10 +17,16 @@ git clone https://github.com/nttg8100/nf-germline-short-read-variant-calling.git
 cd nf-germline-short-read-variant-calling
 
 # Create a feature branch
-git checkout -b feature/your-feature-name
+git switch -b feature/your-feature-name
 
-# Install dependencies (if using pixi)
-pixi install
+# Install pixi
+make ${HOME}/.pixi/bin/pixi
+
+# Reload terminal
+which pixi
+
+# Activate pixi env
+pixi shell
 ```
 
 ## Common Development Tasks
@@ -31,20 +37,23 @@ pixi install
 # With test data
 nf-test test --profile test,docker
 
-# With your own data
-nextflow run main.nf -profile docker \
-    --input samplesheet.csv \
-    --outdir results/
+# With your own data, check
+# testing with fastq input
+make test-fastq
+# testing with cram input
+make test-cram
 ```
 
 ### Running specific tests
+
+The specific tests should be ran by the `local` subfolder for `modules` and `subworkflows` while the `gianglabs` or `nf-core` remote source are validated materials, should not re-test here.
 
 ```bash
 # Run main workflow test
 nf-test test tests/workflows/main.nf.test --profile test,docker
 
 # Run a specific process test
-nf-test test tests/modules/nf-core/bwamem2/mem/main.nf.test --profile test,docker
+nf-test test tests/modules/local/freebayes/main.nf.test --profile test,docker
 ```
 
 ### Debugging
@@ -57,17 +66,31 @@ nf-test test --profile debug,test,docker --verbose
 # Or with Nextflow directly
 nextflow run main.nf -profile docker \
     --input samplesheet.csv \
-    -resume \
-    -debug
+    -resume
 ```
 
 ### Linting
 
+Nf-core has its own linting style while it restricts on the specific patterns that may not need. This pipeline is simply linted:
+
+- nextflow: nextflow script
+- python: ruff
+- r: rlintr
+
 Check if code follows nf-core standards:
 
 ```bash
-# If you have nf-core tools installed
-nf-core pipelines lint .
+# Lint for all
+make lint
+
+# lint nextflow
+make lint-nf
+
+# lint python
+make lint-py
+
+# lint r
+make link-r
 ```
 
 ## File Structure Quick Reference
@@ -98,6 +121,7 @@ nf-core pipelines lint .
 ### Adding a new parameter
 
 1. Add to `nextflow.config`:
+
 ```groovy
 params {
     my_param = 'default_value'
@@ -105,13 +129,14 @@ params {
 ```
 
 2. Update `nextflow_schema.json`:
+
 ```json
 {
-    "my_param": {
-        "type": "string",
-        "description": "What this parameter does",
-        "default": "default_value"
-    }
+  "my_param": {
+    "type": "string",
+    "description": "What this parameter does",
+    "default": "default_value"
+  }
 }
 ```
 
@@ -131,18 +156,22 @@ process {
 
 ## Creating a new process
 
-1. Create file `modules/local/my_process.nf`:
+1. Check the module on the `gianglabs` and `nf-core` remote modules and subworkflows resource first. If there is no approriate module, create or customize by yourself at `local`:
+   - Giang Labs: https://github.com/gianglabs/nf-modules/tree/main
+   - nf-core: https://github.com/nf-core/modules
+
+2. Create file `modules/local/my_process.nf`:
 
 ```groovy
 process MY_PROCESS {
     label 'process_single'
-    
+
     input:
     tuple val(sample_id), file(input_file)
-    
+
     output:
     tuple val(sample_id), file("${sample_id}.processed")
-    
+
     script:
     """
     my_tool ${input_file} --output ${sample_id}.processed
@@ -150,7 +179,7 @@ process MY_PROCESS {
 }
 ```
 
-2. Include in workflow `workflows/main.nf`:
+3. Include in workflow `workflows/main.nf`:
 
 ```groovy
 include { MY_PROCESS } from '../modules/local/my_process'
@@ -160,7 +189,9 @@ workflow {
 }
 ```
 
-3. Add test in `tests/modules/local/my_process/main.nf.test`
+4. Add test in `tests/modules/local/my_process/main.nf.test`
+
+5. Evaluate the possibility of reusing the new modules, they can be integrated into remote resources to reuse. Create a fork and open a PR if needed
 
 ## Useful Nextflow commands
 
@@ -193,17 +224,10 @@ ls work/
 cd work/xx/xxxxxxxx/
 # View .command.run to see what was executed
 cat .command.run
-```
-
-### Add debug output to processes
-
-```groovy
-script:
-"""
-echo "DEBUG: Input file = ${input_file}" >&2
-echo "DEBUG: Sample ID = ${sample_id}" >&2
-my_tool ${input_file}
-"""
+# View the log command
+cat .command.log
+# View command is executed
+cat .command.sh
 ```
 
 ### Check Nextflow configuration
@@ -224,6 +248,7 @@ Before submitting a PR:
    - `docs/update-readme`
 
 2. **Commit messages**: Be clear and descriptive
+
    ```
    feat: add support for GATK 4.4
    fix: resolve memory overflow in variant calling
@@ -237,41 +262,12 @@ Before submitting a PR:
    - Related issues
 
 4. **Testing**: Ensure tests pass locally
+
    ```bash
    nf-test test --profile test,docker
    ```
 
 5. **Documentation**: Update relevant docs
-
-## Common Issues & Solutions
-
-### Issue: "Command not found: nextflow"
-
-```bash
-# Install Nextflow
-curl -s https://get.nextflow.io | bash
-export PATH=$PATH:$PWD
-```
-
-### Issue: "Docker daemon not running"
-
-```bash
-# Start Docker daemon (varies by OS)
-# On macOS
-open -a Docker
-
-# On Linux
-sudo systemctl start docker
-```
-
-### Issue: Test data not found
-
-```bash
-# Download test data
-./test_data/download_hg002.sh
-# Or
-make test-download
-```
 
 ## Getting Help
 

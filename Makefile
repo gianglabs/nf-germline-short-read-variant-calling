@@ -151,9 +151,19 @@ test-cram-sv-all: ${HOME}/.pixi/bin/pixi
 		--index_bwa2_reference false \
 		-resume
 
-# Lint
-lint: ${HOME}/.pixi/bin/pixi
+# Lint: nextflow, python and R
+.PHONY: lint lint-nf lint-py lint-r
+lint: lint-nf lint-py lint-r
+	${HOME}/.pixi/bin/pixi run ruff check --fix
+
+lint-nf: ${HOME}/.pixi/bin/pixi
 	${HOME}/.pixi/bin/pixi run nextflow lint $(shell find . -name "*.nf") -format
+
+lint-py: ${HOME}/.pixi/bin/pixi
+	${HOME}/.pixi/bin/pixi run ruff check . --fix
+
+lint-r: ${HOME}/.pixi/bin/pixi
+	${HOME}/.pixi/bin/pixi run Rscript -e "lintr::lint_dir('.')" 
 
 # Clean
 clean:
