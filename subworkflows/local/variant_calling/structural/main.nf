@@ -16,6 +16,7 @@ include { DELLY } from '../../../../modules/local/delly/main'
 include { SMOOVE } from '../../../../modules/local/smoove/main'
 include { CNVNATOR } from '../../../../modules/local/cnvnator/main'
 include { SURVIVOR_MERGE } from '../../../../modules/local/survivor/main'
+include { SAMTOOLS_VIEW } from '../../../../modules/gianglabs/samtools/view/main'
 include { TABIX_INDEX_VCF } from '../../../../modules/gianglabs/bcftools/index/main'
 
 workflow STRUCTURAL_VARIANT_CALLING {
